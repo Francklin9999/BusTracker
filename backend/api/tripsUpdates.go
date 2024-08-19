@@ -1,10 +1,11 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
-	"encoding/json"
-	"github.com/gorilla/websocket"
+
 	"github.com/Francklin9999/BusTracker/service"
 )
 
@@ -13,7 +14,7 @@ func GetTripUpdates() (string, error) {
 	if err != nil {
 		return "", nil
 	}
-	
+
 	modifiedData, err := service.ModifyDataGetTripUpdates(tripUpdates)
 	if err != nil {
 		return "", nil
@@ -22,14 +23,13 @@ func GetTripUpdates() (string, error) {
 	return modifiedData, nil
 }
 
-func scheduleAPICallsTripUpdates(ws *websocket.Conn) {
-    ticker := time.NewTicker(1 * time.Minute) 
+func scheduleAPICallsTripUpdates() {
+	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
 			handleTripUpdates()
-			ws.WriteJSON(map[string]map[string][]StopData{"Trip Updates": stopIds})
 		}
 	}
 }
@@ -39,34 +39,69 @@ func handleTripUpdates() {
 	if err != nil {
 		log.Println("Error while getting trip updates: ", err)
 		return
-		}
+	}
 	stopIds = transormfTripUpdates([]byte(data1))
 }
 
-func transormfTripUpdates(jsonData []byte) (map[string][]StopData) {
+func transormfTripUpdates(jsonData []byte) map[string][]StopData {
+
+	err := loadTripDirection()
+	if err != nil {
+		log.Println("Error while loading trip direction: ", err)
+		return nil
+	}
 
 	var root Root
-		if err := json.Unmarshal([]byte(jsonData), &root); err != nil {
-			log.Fatalf("Error unmarshalling JSON: %v", err)
-		}
+	if err := json.Unmarshal([]byte(jsonData), &root); err != nil {
+		log.Fatalf("Error unmarshalling JSON: %v", err)
+	}
 
-		stopMap := make(map[string][]StopData)
+	stopMap := make(map[string][]StopData)
 
-		for _, entity := range root.Entity {
-			for _, stopTimeUpdate := range entity.TripUpdate.StopTimeUpdate {
-				stopId := stopTimeUpdate.StopId
-				stopData := StopData{
-					Id:                   entity.Id,
-					Arrival:              stopTimeUpdate.Arrival,
-					ScheduleRelationship: stopTimeUpdate.ScheduleRelationship,
-				}
-
-				if _, exists := stopMap[stopId]; !exists {
-					stopMap[stopId] = []StopData{}
-				}
-
-				stopMap[stopId] = append(stopMap[stopId], stopData)
+	for _, entity := range root.Entity {
+		for _, stopTimeUpdate := range entity.TripUpdate.StopTimeUpdate {
+			stopId := stopTimeUpdate.StopId
+			tripId := entity.TripUpdate.Trip.TripId
+			busDirection := tripDirectionMap[tripId]
+			stopData := StopData{
+				Id:                   entity.Id,
+				Arrival:              stopTimeUpdate.Arrival,
+				ScheduleRelationship: stopTimeUpdate.ScheduleRelationship,
+				RouteId:              entity.TripUpdate.Trip.RouteId,
+				Direction:            busDirection,
 			}
+
+			if _, exists := stopMap[stopId]; !exists {
+				stopMap[stopId] = []StopData{}
+			}
+
+			stopMap[stopId] = append(stopMap[stopId], stopData)
 		}
-		return stopMap;
+	}
+	return stopMap
+}
+
+func selectedTripUpdates(data []interface{}) (map[string][]StopData, error) {
+	if data == nil {
+		return stopIds, nil
+	}
+
+	filteredStopIds := make(map[string][]StopData)
+	for _, item := range data {
+		var stopId string
+
+		if id, ok := item.(float64); ok {
+			stopId = fmt.Sprintf("%.0f", id)
+		} else if id, ok := item.(string); ok {
+			stopId = id
+		} else {
+			return nil, fmt.Errorf("invalid item type: %T", item)
+		}
+
+		if stopData, exists := stopIds[stopId]; exists {
+			filteredStopIds[stopId] = stopData
+		}
+	}
+
+	return filteredStopIds, nil
 }

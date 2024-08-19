@@ -12,6 +12,8 @@ export class StopsService {
   private markers: google.maps.Marker[] = [];
   private previousZoom: number = 15;
 
+  private stops: { [key: string]: any } = {};
+
   private buttonClickSubject = new Subject<string>();
   buttonClick$ = this.buttonClickSubject.asObservable();
 
@@ -25,8 +27,8 @@ export class StopsService {
             header: true,
             dynamicTyping: true,
             complete: (result: any) => {
-              const parsedData = this.transformData(result.data);
-              observer.next(parsedData);
+              this.stops = this.transformData(result.data);
+              observer.next(this.stops);
               observer.complete();
             },
             error: (error: any) => {
@@ -39,7 +41,7 @@ export class StopsService {
     });
   }
 
-  private transformData(data: any[]): any {
+  private transformData(data: any[]): { [key: string]: any } {
     const result: { [key: string]: any} = {};
     data.forEach(row => {
       if (row.stop_code) {
@@ -113,13 +115,10 @@ export class StopsService {
         `);
         infoWindow.open(map, marker);
 
-        // Wait for the InfoWindow to be rendered
         google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
-          // Find the button by its ID and add a click event listener
           const button = document.getElementById(`infoWindowButton-${stopCode}`);
           if (button) {
             button.addEventListener('click', () => {
-              // Emit the button click event
               this.buttonClickSubject.next(stop.stop_code);
             });
           }
@@ -136,7 +135,34 @@ export class StopsService {
     map.addListener('zoom_changed', updateMarkerSize);
   }
 
-  handleButtonClick(stopCode: string): void {
-    console.log(`Button clicked for stop: ${stopCode}`);
+  calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; 
+  }
+
+  getNearbyStops(stopCode: string, distance: number): any[] {
+    const centerStop = this.stops[stopCode];
+    if (!centerStop) {
+      return [];
+    }
+
+    const nearbyStops:  any[] = [];
+    Object.keys(this.stops).forEach(key => {
+      const stop = this.stops[key];
+      if (stop.stop_code !== stopCode) {
+        const dist = this.calculateDistance(centerStop.stop_lat, centerStop.stop_lon, stop.stop_lat, stop.stop_lon);
+        if (dist <= distance) {
+          nearbyStops.push(stop.stop_code);
+        }
+      }
+    });
+
+    return nearbyStops;
   }
 }

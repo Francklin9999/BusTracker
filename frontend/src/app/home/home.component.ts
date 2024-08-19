@@ -4,6 +4,7 @@ import { GoogleMapsModule } from '@angular/google-maps';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { StopsService } from '../services/stops.service';
+import { BusService } from '../services/bus.service';
 
 @Component({
   selector: 'app-home',
@@ -18,6 +19,8 @@ export class HomeComponent {
   @ViewChild('map', { static: false }) mapElement!: ElementRef;
   @ViewChild('departureLocation', { static: false }) departureLocationInput!: ElementRef;
   @ViewChild('arrivalLocation', { static: false }) arrivalLocationInput!: ElementRef;
+  @ViewChild('departureDate', { static: false }) departureDateInput!: ElementRef;
+  @ViewChild('departureTime', { static: false }) departureTimeInput!: ElementRef;
 
   map!: google.maps.Map;
   departureAutocomplete!: google.maps.places.Autocomplete;
@@ -31,20 +34,38 @@ export class HomeComponent {
       stylers: [{ visibility: "off" }]
     }
   ];
+
+  routeDuration: string | undefined;
+  routeDistance: string | undefined;
+  steps: Array<{
+    instructions: string;
+    transitLine: string | undefined;
+    arrivalTime: string | undefined;
+    departureTime: string | undefined;
+  }> = [];
   
   private buttonClickSubscription: Subscription | null = null;
+  private messageSubscription: Subscription | undefined;
+  tripData: any = {};
 
-  constructor(private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private stopsService: StopsService) {}
+  constructor(private busService: BusService, private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private stopsService: StopsService) {}
 
   ngOnInit(): void {
     this.buttonClickSubscription = this.stopsService.buttonClick$.subscribe(stopCode => {
       this.handleButtonClick(stopCode);
+    });
+    this.messageSubscription = this.busService.getMessages().subscribe(message => {
+      console.log('Received WebSocket message:', message);
+      this.tripData = message['Trip Updates'] || {};
     });
   }
 
   ngOnDestroy(): void {
     if (this.buttonClickSubscription) {
       this.buttonClickSubscription.unsubscribe();
+    }
+    if (this.messageSubscription) {
+      this.messageSubscription.unsubscribe();
     }
   }
 
@@ -79,10 +100,10 @@ export class HomeComponent {
     this.departureAutocomplete = new google.maps.places.Autocomplete(this.departureLocationInput.nativeElement);
     this.arrivalAutocomplete = new google.maps.places.Autocomplete(this.arrivalLocationInput.nativeElement);
 
-    this.departureAutocomplete.setTypes(['establishment']);
-    this.departureAutocomplete.setFields(['place_id', 'geometry', 'name']);
-    this.arrivalAutocomplete.setTypes(['establishment']);
-    this.arrivalAutocomplete.setFields(['place_id', 'geometry', 'name']);
+    // this.departureAutocomplete.setTypes(['establishment']);
+    // this.departureAutocomplete.setFields(['place_id', 'geometry', 'name']);
+    // this.arrivalAutocomplete.setTypes(['establishment']);
+    // this.arrivalAutocomplete.setFields(['place_id', 'geometry', 'name']);
   }
 
   showOption(value: string) {
@@ -92,6 +113,8 @@ export class HomeComponent {
   handleClick() {
     const departurePlace = this.departureAutocomplete.getPlace();
     const arrivalPlace = this.arrivalAutocomplete.getPlace();
+
+    const departureDateTimeString = `${this.departureDateInput}T${this.departureTimeInput}`;
   
     if (!departurePlace || !arrivalPlace || !departurePlace.geometry?.location || !arrivalPlace.geometry?.location) {
       console.error('One or both of the places are not selected or locations are undefined');
@@ -103,20 +126,55 @@ export class HomeComponent {
       origin: departurePlace.geometry.location,
       destination: arrivalPlace.geometry.location,
       travelMode: google.maps.TravelMode.TRANSIT,
+      transitOptions: {
+        departureTime: new Date(departureDateTimeString)
+      }
     }, 
     (response: any, status: any) => {
       if (status === "OK") {
         this.directionsRenderer.setDirections(response);
+        this.extractTransitDetails(response);
       } else {
         console.error(`Directions request failed due to ${status}`);
       }
     });
   }
 
+  extractTransitDetails(response: google.maps.DirectionsResult) {
+    if (response.routes.length > 0) {
+      const route = response.routes[0];
+      const legs = route.legs;
+
+      this.routeDuration = legs[0]?.duration?.text;
+      this.routeDistance = legs[0]?.distance?.text;
+
+      this.steps = legs.flatMap(leg =>
+        leg.steps.map(step => ({
+          instructions: step.instructions,
+          transitLine: step.transit?.line?.short_name,
+          arrivalTime: step.transit?.arrival_time?.text,
+          departureTime: step.transit?.departure_time?.text
+        }))
+      );
+    }
+  }
+
   handleButtonClick(stopCode: string): void {
     console.log(`Button clicked for stop: ${stopCode}`);
     this.showOption('busNearYou');
+    const nearbyStops = this.stopsService.getNearbyStops(stopCode, 250);
+    console.log('Nearby stops:', nearbyStops);
     this.cdr.detectChanges();
+    this.busService.sendMessage('tripUpdates', { dataArray: nearbyStops });
   }
 
+  getStopIds(): string[] {
+    return Object.keys(this.tripData);
+  }
+
+  getBusStopName(stopId: string): string {
+    const busStop = this.busStops.find(stop => stop.stop_id == stopId);
+    return busStop ? busStop.stop_name : 'Unknown Stop';
+  }
+  
 }
