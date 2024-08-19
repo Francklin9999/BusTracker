@@ -5,7 +5,18 @@
 }
 
 .left-section {
+  margin: 5px;
+  width: 100%;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 12px;
+  align-self: center;
 }
 
 .right-section {
@@ -57,6 +68,12 @@
 
 .bus-section {
   padding: 20px;
+}
+
+.right-section-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: black;
 }
 
 .map {

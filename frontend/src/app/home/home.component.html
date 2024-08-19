@@ -1,7 +1,7 @@
 <div class="content">
 
   <div class="left-section">
-    <h3>Transit is a transit system that provides public transportation in the city of Montreal.</h3>
+    <h3 class="title">Transit is a transit system that provides public transportation in the city of Montreal.</h3>
     <div>
       <div class="map-container">
         <div class="map" #map></div>
@@ -15,15 +15,15 @@
       <button class="buttons" [ngClass]="{'active': selectedOption === 'busNearYou'}" (click)="showOption('busNearYou')">Bus near you</button>
     </div>
     <div class="directions" *ngIf="selectedOption === 'whereToGo'">
-      <h4>Where do you want to go?</h4>
+      <h4 class="right-section-text">Where do you want to go?</h4>
       <input class="directions-inputs" #departureLocation type="text" placeholder="Enter departure location" />
       <input class="directions-inputs" #arrivalLocation type="text" placeholder="Enter arrival location" />
       <button (click)="handleClick()">Search</button>
     </div>
 
     <div class="bus-section" *ngIf="selectedOption === 'busNearYou'">
-      <h4>Bus near you</h4>
-      <!-- Bus near you content goes here -->
+      <h4 class="right-section-text">Bus near you</h4>
+      
     </div>
   </div>
 

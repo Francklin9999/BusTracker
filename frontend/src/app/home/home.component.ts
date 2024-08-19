@@ -1,8 +1,8 @@
-import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
-// import { environment } from '../environments/environment';
+import { Component, ElementRef, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { StopsService } from '../services/stops.service';
 
 @Component({
@@ -24,47 +24,55 @@ export class HomeComponent {
   arrivalAutocomplete!: google.maps.places.Autocomplete;
   directionsService!: google.maps.DirectionsService;
   directionsRenderer!: google.maps.DirectionsRenderer;
-  selectedOption: any = 'whereToGo';
+  selectedOption: string = 'whereToGo';
+  mapStyles = [
+    {
+      featureType: "transit.station.bus",
+      stylers: [{ visibility: "off" }]
+    }
+  ];
   
-  constructor(private sanitizer: DomSanitizer, private stopsService: StopsService) {}
+  private buttonClickSubscription: Subscription | null = null;
 
-  zoom = 12;
-  center: google.maps.LatLngLiteral = { lat: 45.502181, lng: -73.660779 };
-  options: google.maps.MapOptions = {
-    disableDefaultUI: false,
-    zoomControl: true
-  };
+  constructor(private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private stopsService: StopsService) {}
 
+  ngOnInit(): void {
+    this.buttonClickSubscription = this.stopsService.buttonClick$.subscribe(stopCode => {
+      this.handleButtonClick(stopCode);
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.buttonClickSubscription) {
+      this.buttonClickSubscription.unsubscribe();
+    }
+  }
 
   ngAfterViewInit(): void {
     this.initMap();
     this.initAutocomplete();
-    // this.stopsService.getParsedData().subscribe((data: any) => {
-    //   this.busStops = Object.values(data);
-    // },
-    // (error: any) => {
-    //   console.error('Error fetchong or parsing csv bus stops data', error);
-    //   });
-
-    // if (typeof google !== 'undefined' && google.maps) {
-    // this.markerIcon = {
-    //   url: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="black" stroke-width="2" fill="red"/></svg>'),
-    //   scaledSize: new google.maps.Size(5, 5), 
-    //   anchor: new google.maps.Point(1, 2)
-    //   };
-    // }
+    this.stopsService.getParsedData().subscribe((data: any) => {
+      this.busStops = Object.values(data);
+    },
+    (error: any) => {
+      console.error('Error fetchong or parsing csv bus stops data', error);
+      });
   }
 
   initMap(): void {
       const mapOptions: google.maps.MapOptions = {
         center: new google.maps.LatLng(45.5016728, -73.5736054),
-        zoom: 12,
+        zoom: 15,
+        styles: this.mapStyles,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
       };
 
       this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
       this.directionsRenderer = new google.maps.DirectionsRenderer();
       this.directionsRenderer.setMap(this.map);
+      this.stopsService.getParsedData().subscribe(stops => {
+      this.stopsService.addMarkers(this.map, stops);
+      });
   }
 
   initAutocomplete(): void {
@@ -104,4 +112,11 @@ export class HomeComponent {
       }
     });
   }
+
+  handleButtonClick(stopCode: string): void {
+    console.log(`Button clicked for stop: ${stopCode}`);
+    this.showOption('busNearYou');
+    this.cdr.detectChanges();
+  }
+
 }
