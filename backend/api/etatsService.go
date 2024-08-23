@@ -17,5 +17,5 @@ func GetEtatService(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
-	c.JSON(http.StatusOK, modifiedData)
+	c.Data(http.StatusOK, "application/json", []byte(modifiedData))
 }

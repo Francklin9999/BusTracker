@@ -11,6 +11,7 @@ export class StopsService {
   private filePath = 'assets/files/stops.csv';
   private markers: google.maps.Marker[] = [];
   private previousZoom: number = 15;
+  private imageUrl: string = '../assets/images/bus-stop-icon.png';
 
   private stops: { [key: string]: any } = {};
 
@@ -62,7 +63,7 @@ export class StopsService {
     this.markers = [];
 
     const minScale = 1; 
-    const maxScale = 5; 
+    const maxScale = 12; 
 
     const updateMarkerSize = () => {
       const zoom = map.getZoom() || 15;
@@ -77,11 +78,7 @@ export class StopsService {
 
       this.markers.forEach(marker => {
         marker.setIcon({
-          url: 'data:image/svg+xml;base64,' + btoa(`
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2" fill="red"/>
-            </svg>
-          `),
+          url: this.imageUrl,
           scaledSize: new google.maps.Size(scale, scale),
         });
       });
@@ -96,11 +93,7 @@ export class StopsService {
         map: map,
         title: stop.stop_name,
         icon: {
-          url: 'data:image/svg+xml;base64,' + btoa(`
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" stroke="black" stroke-width="2" fill="red"/>
-            </svg>
-          `),
+          url: this.imageUrl,
           scaledSize: new google.maps.Size(5, 5),
         },
       });

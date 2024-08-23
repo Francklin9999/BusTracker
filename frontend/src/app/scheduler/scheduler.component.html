@@ -1,0 +1,52 @@
+<div class="content">
+
+    <div class="left-section">
+      <h3 class="title">Plan a trip.<br />Decide where you want to go.</h3>
+      <div>
+        <div class="map-container">
+          <div class="map" #map></div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="right-section">
+      <div class="selection-buttons">
+        <button class="buttons" [ngClass]="{'active': selectedOption === 'whereToGo'}" (click)="showOption('whereToGo')">Where do you want to go?</button>
+        <button class="buttons" [ngClass]="{'active': selectedOption === 'busNearYou'}" (click)="showOption('busNearYou')">Bus near you</button>
+      </div>
+      <div class="directions" *ngIf="selectedOption === 'whereToGo'">
+        <h4 class="right-section-text">Where do you want to go?</h4>
+        <input class="directions-inputs" #departureLocation type="text" placeholder="Enter departure location" />
+        <input class="directions-inputs" #arrivalLocation type="text" placeholder="Enter arrival location" />
+        <input class="directions-inputs" type="date" #departureDate placeholder="Select departure date" />
+        <input class="directions-inputs" type="time" #departureTime placeholder="Select departure time" />    
+        <button (click)="handleClick()">Search</button>
+        <div *ngIf="steps.length > 0">
+          <h4>Steps</h4>
+          <div *ngFor="let step of steps">
+            <p *ngIf="step.instructions">Instructions: {{ step.instructions }}</p>
+            <p *ngIf="step.transitLine">Transit Line: {{ step.transitLine }}</p>
+            <p *ngIf="step.arrivalTime">Arrival Time: {{ step.arrivalTime }}</p>
+            <p *ngIf="step.departureTime">Departure Time: {{ step.departureTime }}</p>
+          </div>
+        </div>
+      </div>
+  
+      <div class="bus-section" *ngIf="selectedOption === 'busNearYou'">
+        <h4 class="right-section-text">Bus near you</h4>
+        <div *ngIf="tripData">
+          <div class="buses" *ngFor="let stopId of getStopIds()">
+            <div *ngFor="let trip of tripData[stopId]">
+              <h4>Ligne: {{ trip.routeId }}</h4>
+              <p>Prochain passage: {{ trip.arrival.time }} minutes</p>
+              <p>Direction: {{ trip.direction }}</p>
+              <h5>Arrêt: {{ getBusStopName(stopId) }}</h5>
+            </div>
+          </div>
+        </div>
+  
+      </div>
+    </div>
+  
+</div>
+  

@@ -1,14 +1,15 @@
 package service
 
 import (
-	"fmt"
-	"math"
-	"io"
-	"sync"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
-	"time"
+	"math"
 	"net/http"
+	"sync"
+	"time"
+
 	"github.com/Francklin9999/BusTracker/protos"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -188,8 +189,115 @@ func GetEtatService() ([]byte, error) {
 	return data, nil
 }
 
-func ModifyDataEtatService(data []byte) (string, error) {
-	return string(data), nil
+func ModifyDataEtatService(data1 []byte) (string, error) {
+	var data map[string]interface{}
+	if err := json.Unmarshal(data1, &data); err != nil {
+		return "", fmt.Errorf("error parsing JSON: %v", err)
+	}
+
+	result := make(map[string]interface{})
+
+	alerts, ok := data["alerts"].([]interface{})
+
+	if !ok {
+	return "", fmt.Errorf("error: 'alerts' is not an array")
+	}
+
+	for _, alert := range alerts {
+		alertMap, ok := alert.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		activePeriods := []map[string]interface{}{}
+		if periods, ok := alertMap["active_periods"].([]interface{}); ok {
+			for _, period := range periods {
+				periodMap, ok := period.(map[string]interface{})
+				if !ok {
+					continue
+				}
+
+				start, _ := periodMap["start"].(float64)
+				end, endOk := periodMap["end"]
+
+				startDate := unixToDateString(start)
+				var endDate *string
+				if endOk && end != nil {
+					endValue := end.(float64)
+					endDateStr := unixToDateString(endValue)
+					endDate = &endDateStr
+				}
+
+				activePeriod := map[string]interface{}{
+					"start": startDate,
+					"end":   endDate,
+				}
+				activePeriods = append(activePeriods, activePeriod)
+			}
+		} else if periodMap, ok := alertMap["active_periods"].(map[string]interface{}); ok {
+			start, _ := periodMap["start"].(float64)
+			end, endOk := periodMap["end"]
+
+			startDate := unixToDateString(start)
+			var endDate *string
+			if endOk && end != nil {
+				endValue := end.(float64)
+				endDateStr := unixToDateString(endValue)
+				endDate = &endDateStr
+			}
+
+			activePeriod := map[string]interface{}{
+				"start": startDate,
+				"end":   endDate,
+			}
+			activePeriods = append(activePeriods, activePeriod)
+		}
+	
+			if entities, ok := alertMap["informed_entities"].([]interface{}); ok {
+				for _, entity := range entities {
+					entityMap, ok := entity.(map[string]interface{})
+					if !ok {
+						continue
+					}
+	
+					routeShortName, ok := entityMap["route_short_name"].(string)
+					if !ok {
+						continue
+					}
+
+					description := ""
+					if descriptions, ok := alertMap["description_texts"].([]interface{}); ok {
+						for _, desc := range descriptions {
+							descMap, ok := desc.(map[string]interface{})
+							if !ok {
+								continue
+							}
+	
+							if descMap["language"] == "en" {
+								description = descMap["text"].(string)
+								break
+							}
+						}
+					}
+	
+					result[routeShortName] = map[string]interface{}{
+						"active_periods": activePeriods,
+						"description":    description,
+					}
+				}
+			}
+		}
+	
+		output, err := json.MarshalIndent(result, "", "  ")
+		if err != nil {
+			return "", err
+		}
+		return string(output), nil
+}
+
+func unixToDateString(unixTime float64) string {
+	t := time.Unix(int64(unixTime), 0).UTC()
+	return t.Format(time.RFC3339) 
 }
 
 // func MixTripUpdatesAndVehiclePositions(data1 string, data2 string) (string, err) {

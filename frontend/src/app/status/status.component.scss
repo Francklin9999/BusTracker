@@ -1,0 +1,72 @@
+.content {
+    background-color: black;
+}
+
+div {
+    padding: 0;
+    margin: 0;
+}
+
+.title {
+    background-image: url('../../assets/images/test.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    height: 300px;
+    width: 100%;
+    padding: 0;
+    display: flex;
+    align-items: end;
+}
+
+.title-text {
+    color: white;
+    font-size: 60px;
+    width: 100%;
+    padding: 15px;
+    background-image: linear-gradient(to top, 
+    rgba(0,0,0,1) 20%, 
+    rgba(0,0,0,.8) 40%,
+    rgba(0,0,0,.7) 60%,
+    rgba(0,0,0,.6) 80%,
+    rgba(0,0,0,0.4) 90%,
+    rgba(0,0,0,0) 100%);
+}
+
+.content {
+    margin: 0;
+    padding: 0px 2px 10px 2px;
+    color: white;
+}
+
+.inputLigne {
+    display: flex;
+    flex-direction: row;
+}
+
+.inputLigne > label {
+    font-size: 24px;
+}
+
+.bus-data {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    color: white;
+    font-size: 24px;
+}
+
+.bus-status {
+    background-color: rgb(41, 41, 41);
+    border-radius: 12px;
+    padding: inherit;
+    justify-content: left;
+}
+
+.dates {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    // padding: inherit;
+    font-size: 1rem;
+}

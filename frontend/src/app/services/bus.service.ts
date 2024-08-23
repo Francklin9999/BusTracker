@@ -12,7 +12,11 @@ export class BusService {
   private messageSubject: Subject<any> = new Subject<any>();
 
   constructor(private http: HttpClient) {
-    this.connectWebSocket();
+    try {
+      this.connectWebSocket();
+    } catch(error) {
+      console.log('Error connecting to WebSocket:', error);
+    }
   }
 
   getBusesNear(location: string): Observable<any> {

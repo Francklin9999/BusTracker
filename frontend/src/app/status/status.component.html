@@ -1,0 +1,34 @@
+<div class="container-fluid content">
+    <div class="row title">
+        <div>
+            <h2 class="title-text">Service Status</h2>
+        </div>
+    </div>
+    <div class="row content">
+        <div class="inputLigne gap-3">
+            <label for="lineInput">Select a line to see his status:</label>
+            <input type="text"
+            placeholder="Select a line"
+            aria-label="Number"
+            matInput
+            [formControl]="myControl"
+            [matAutocomplete]="auto">
+            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            @for (option of filteredOptions | async; track option) {
+                <mat-option [value]="option">{{option}}</mat-option>
+            }
+            </mat-autocomplete>
+        </div>
+        <div *ngIf="dataMap" class="container bus-data gap-3">
+            <div *ngFor="let key of getKeys(dataMap)" class="row bus-status gap-2">
+            <h3>Line: {{ key }}</h3>
+            <p>Status: {{ dataMap[key].description }}</p>
+            
+            <div *ngFor="let period of dataMap[key].active_periods" class="dates">
+                <p>Start Date: {{ formatDate(period.start) }}</p>
+                <p>End Date: {{ formatDate(period.end) }}</p>
+            </div>
+            </div>
+        </div>  
+    </div>
+</div>
