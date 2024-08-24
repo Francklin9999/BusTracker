@@ -121,9 +121,10 @@ export class SchedulerComponent {
     this.initAutocomplete();
     this.stopsService.getParsedData().subscribe((data: any) => {
       this.busStops = Object.values(data);
+      this.stopsService.addMarkers(this.map, data);
     },
     (error: any) => {
-      console.error('Error fetchong or parsing csv bus stops data', error);
+      console.error('Error fetching or parsing csv bus stops data', error);
       });
   }
 
@@ -141,9 +142,6 @@ export class SchedulerComponent {
       this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
       this.directionsRenderer = new google.maps.DirectionsRenderer();
       this.directionsRenderer.setMap(this.map);
-      this.stopsService.getParsedData().subscribe(stops => {
-      this.stopsService.addMarkers(this.map, stops);
-      });
   }
 
   initAutocomplete(): void {

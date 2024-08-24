@@ -20,6 +20,8 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+var stopVehiclePositions chan struct{}
+
 func SetupRoutes(router *gin.Engine) {
 	router.GET("/ws", handleWebSocket)
 	router.GET("/rs/etatservice", GetEtatService)
@@ -78,7 +80,12 @@ func handleWebSocket(c *gin.Context) {
 			if err != nil {
 				ws.WriteJSON(map[string]string{"vehiclePositions": "Error fetching vehiclePositions"})
 			}
-			go scheduleAPICallsVehiclePositions(ws)
+			stopVehiclePositions = make(chan struct{})
+			go scheduleAPICallsVehiclePositions(ws, stopVehiclePositions)
+		case "vehiclePositionsClosed":
+			if stopVehiclePositions != nil {
+				close(stopVehiclePositions)
+			}
 		default:
 			err = ws.WriteMessage(websocket.TextMessage, []byte("Invalid request"))
 			if err != nil {
