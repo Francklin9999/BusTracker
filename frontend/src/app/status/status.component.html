@@ -10,21 +10,31 @@
             <input type="text"
             placeholder="Select a line"
             aria-label="Number"
+            #inputBus
             matInput
             [formControl]="myControl"
-            [matAutocomplete]="auto">
+            [matAutocomplete]="auto"/>
             <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
             @for (option of filteredOptions | async; track option) {
                 <mat-option [value]="option">{{option}}</mat-option>
             }
             </mat-autocomplete>
+            <button (click)="filterMap()">Search</button>
         </div>
-        <div *ngIf="dataMap" class="container bus-data gap-3">
-            <div *ngFor="let key of getKeys(dataMap)" class="row bus-status gap-2">
+        <div *ngIf="filteredItems" class="container bus-data gap-3">
+            <div *ngFor="let key of getKeys(filteredItems)" class="row bus-status gap-2">
             <h3>Line: {{ key }}</h3>
-            <p>Status: {{ dataMap[key].description }}</p>
-            
-            <div *ngFor="let period of dataMap[key].active_periods" class="dates">
+            <p>Status: {{ filteredItems[key].description }}</p>
+            <p>
+            More info 
+            <a [href]="(+key <= 5 ? 'https://www.stm.info/en/info/service-updates/metro' : 'https://www.stm.info/en/info/service-updates/bus?bus_line=' + key + '#status-bus-result-title')"
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+                here
+              </a>
+            </p>
+            <div *ngFor="let period of filteredItems[key].active_periods" class="dates">
                 <p>Start Date: {{ formatDate(period.start) }}</p>
                 <p>End Date: {{ formatDate(period.end) }}</p>
             </div>

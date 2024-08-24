@@ -4,3 +4,51 @@
     flex-grow: 1;
     box-sizing: border-box;
 }
+
+// .content {
+// }
+
+mat-toolbar {
+    position: relative;
+    z-index: 5;
+    background-color: black;
+}
+
+mat-sidenav-container {
+    height: calc(100vh - 64px);
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+  
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+// mat-toolbar {
+//     flex: 0 0 auto;
+// }
+
+// mat-sidenav-container {
+//     flex: 1 1 auto;
+//     display: flex;
+//     flex-direction: row;
+// }
+
+// mat-sidenav-content {
+//     flex: 1 1 auto;
+//     overflow: auto;
+// }
+
+.menu-icon {
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+  

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { StatusService } from '../services/status.service';
 import { CommonModule } from '@angular/common';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -25,11 +25,14 @@ import {MatFormFieldModule} from '@angular/material/form-field';
   styleUrls: ['./status.component.scss']
 })
 export class StatusComponent {
+  @ViewChild('inputBus', { static: false }) inputBus!:  ElementRef;
 
   dataMap: { [key: string]: any } = {};
+  filteredItems: { [key: string]: any } = {};
 
   myControl = new FormControl('');
-  options: string[] = [ '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
+  options: string[] = [ 'All', '1', '2', '4', '5',
+    '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
     '22', '24', '25', '26', '27', '28', '29', '30', '31', '32',
     '33', '34', '35', '36', '37', '38', '39', '40', '41', '43',
     '44', '45', '46', '47', '48', '49', '51', '52', '54', '55',
@@ -55,7 +58,7 @@ export class StatusComponent {
     '439', '440', '444', '445', '448', '449', '460', '465', '467',
     '468', '469', '470', '475', '480', '485', '486', '487', '491',
     '495', '496', '568', '711', '715', '747', '767', '768', '769',
-    '777', '804', '811', '822', '872', '874', '930', '968'];
+    '777', '811', '872'];
   filteredOptions!: Observable<string[]>;
 
   constructor(private statusService: StatusService) { }
@@ -64,6 +67,8 @@ export class StatusComponent {
     this.statusService.getData().subscribe(
       data => {
         this.dataMap = data;
+        this.filteredItems = this.dataMap;
+        console.log(data);
       },
       error => {
         console.error('Error fetching data', error);
@@ -75,6 +80,27 @@ export class StatusComponent {
       map(value => this._filter(value || '')),
     );
   }
+
+  ngOnDestroy(): void {
+  }
+
+  filterMap() {
+    this.filteredItems = {};
+    const inputValue = this.inputBus.nativeElement.value;
+    
+    if (inputValue === 'All') {
+      this.filteredItems = this.dataMap;
+      return;
+    }
+    
+    Object.keys(this.dataMap).forEach(key => {
+      if (key === inputValue) { 
+        this.filteredItems[key] = this.dataMap[key];
+        return;
+      }
+    });
+  }
+  
 
   formatDate(dateStr: string | null): string {
     if (!dateStr) return 'Not provided';
@@ -88,7 +114,6 @@ export class StatusComponent {
 
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-
     return this.options.filter(option => option.toLowerCase().includes(filterValue));
   }
   

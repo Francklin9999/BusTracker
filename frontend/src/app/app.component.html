@@ -1,4 +1,22 @@
 <!--Wrapper-->
-<div class="wrapper">
+<!-- <div class="wrapper">
   <router-outlet></router-outlet>
+</div> -->
+<div class="wrapper">
+  <mat-sidenav-container>
+    <mat-sidenav opened mode="side" [style.width]="sidenavWidth()">
+      <button mat-icon-button (click)="collapsed.set(!collapsed())" class="menu-icon">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <app-custom-sidenav [collapsed]="collapsed()" />
+    </mat-sidenav>
+    <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
+      <!-- Wrapper-->
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>
+
+
+
+  
