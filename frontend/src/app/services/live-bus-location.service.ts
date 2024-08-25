@@ -82,8 +82,6 @@ export class LiveBusLocationService {
       });
     };
 
-    const infoWindow = new google.maps.InfoWindow();
-
     Object.keys(stops).forEach(stopCode => {
       const stop = stops[stopCode];
       const marker = new google.maps.Marker({
@@ -95,6 +93,8 @@ export class LiveBusLocationService {
           scaledSize: new google.maps.Size(5, 5),
         },
       });
+
+      const infoWindow = new google.maps.InfoWindow();
 
       marker.addListener('mouseover', () => {
         infoWindow.setContent(`

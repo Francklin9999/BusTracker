@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/Francklin9999/BusTracker/service"
@@ -65,7 +64,6 @@ func processVehiclePosition(text string) (string, error) {
 		return "", fmt.Errorf("error: entity field is missing or is not an array")
 	}
 
-	currentTime := time.Now().Unix()
 	resultMap := make(map[string]map[string]interface{})
 
 	for _, e := range entities {
@@ -94,18 +92,11 @@ func processVehiclePosition(text string) (string, error) {
 			continue
 		}
 
-		parsedTimestamp, err := strconv.ParseInt(timestampStr, 10, 64)
-		if err != nil {
-			continue
-		}
-
-		timeDiffSeconds := currentTime - parsedTimestamp
-
 		resultMap[routeID] = map[string]interface{}{
 			"tripId":          trip["tripId"],
 			"position":        vehicle["position"],
 			"currentStatus":   vehicle["currentStatus"],
-			"timeDifference":  timeDiffSeconds,
+			"timeDifference":  timestampStr,
 			"occupancyStatus": vehicle["occupancyStatus"],
 		}
 	}

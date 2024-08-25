@@ -1,21 +1,34 @@
+@import "../styles/variables.scss";
+
 .wrapper {
-    height: auto;
+    height: 100vh;
     width: 100%;
-    flex-grow: 1;
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
+    background-color: $black-background !important;
+    color: $white-background !important;
 }
 
-// .content {
-// }
+.content {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
 
 mat-toolbar {
     position: relative;
     z-index: 5;
-    background-color: black;
+    background-color: inherit;
 }
 
 mat-sidenav-container {
     height: calc(100vh - 64px);
+    background-color: inherit;
+}
+
+mat-sidenav {
+    background-color: inherit;
 }
 
 html, body {
@@ -33,16 +46,18 @@ html, body {
 //     flex: 0 0 auto;
 // }
 
-// mat-sidenav-container {
-//     flex: 1 1 auto;
-//     display: flex;
-//     flex-direction: row;
-// }
+mat-sidenav-container {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+}
 
-// mat-sidenav-content {
-//     flex: 1 1 auto;
-//     overflow: auto;
-// }
+mat-sidenav-content {
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 0;
+    margin: 0;
+}
 
 .menu-icon {
     width: 60px;

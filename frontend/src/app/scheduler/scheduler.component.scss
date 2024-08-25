@@ -1,99 +1,125 @@
+@import "../../styles/variables.scss";
+
 .content {
-    display: flex;
-    flex-direction: row;
-    background-color: black;
-  }
-  
-  .left-section {
-    margin: 5px;
-    width: 100%;
-    flex: 1;
-    display: flex;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  background-color: inherit;
+  flex-direction: row;
+  @media screen and (max-width: 600px) {
     flex-direction: column;
+    flex-wrap: wrap-reverse;
   }
+}
   
-  .title {
-    // background-color: rgb(45, 121, 45);
-    border-radius: 12px;
-    padding: 5px;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    margin: 12px;
-    align-self: center;
-    text-align: center;
-  }
-  
-  .right-section {
-    width: 30%;
-    padding: 10px;
-    background-color: rgb(45, 121, 45);
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: scroll;
-  }
-  
-  .selection-buttons {
-    display: flex;
-    gap: 12px;
-    background-color: #145d27;
-    border-radius: 18px;
-  }
-  
-  .buttons {
-    margin: 5px;
-    padding: 10px;
-    border: none;
-    background-color: #145d27;
-    cursor: pointer;
-    // transition: background-color 0.3s;
-  }
-  
-  .buttons.active {
-    background-color: rgb(45, 121, 45);
-    border-radius: 18px;
-  }
-  
-  .directions {
+.left-section {
+  margin: 5px;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  // background-color: rgb(45, 121, 45);
+  border-radius: 12px;
+  padding: 5px;
+  color: inherit;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 12px;
+  align-self: center;
+  text-align: center;
+}
+
+.right-section {
+  width: 30%;
+  padding: 10px;
+  background-color: $dark-gray;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: scroll;
+  @media screen and (max-width: 600px) {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    gap: 10px;
   }
-  
-  .directions-inputs {
-    box-sizing: border-box;
-    width: 100%;
-    margin: 5px;
-    padding: 10px;
-  }
-  
-  .bus-section {
-    padding: 20px;
-  }
-  
-  .right-section-text {
-    font-size: 18px;
-    font-weight: bold;
-    color: black;
-    align-items: center;
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  
-  .buses {
-    width: 100%;
-    margin: 7px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .map {
-    height: 550px;
-    width: auto; 
-  }
+}
+
+.selection-buttons {
+  display: flex;
+  gap: 12px;
+  background-color: $dark-gray2;
+  border-radius: 18px;
+}
+
+.buttons {
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  background-color: $dark-gray2;
+  cursor: pointer;
+  // transition: background-color 0.3s;
+}
+
+.buttons.active {
+  background-color: $dark-gray3;
+  border-radius: 18px;
+}
+
+.directions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 10px;
+}
+
+.directions-inputs {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 5px;
+  padding: 10px;
+}
+
+.bus-section {
+  padding: 20px;
+}
+
+.right-section-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: inherit;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.buses-content {
+  width: 100%;
+}
+
+.buses {
+  width: 100%;
+  margin: 7px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bus-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+}
+
+.map {
+  height: 100%;
+  width: 100%; 
+}

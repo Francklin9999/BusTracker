@@ -2,7 +2,7 @@ import { Component, computed, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 
 export type MenuItem = {
@@ -32,23 +32,33 @@ export class CustomSidenavComponent {
       route: 'home',
     },
     {
-      icon: 'dashboard',
-      label: 'Live Updates',
-      route: 'map',
-    },
-    {
-      icon: 'video_library',
+      icon: 'calendar_today',
       label: 'Scheduler',
       route: 'trip',
     },
     {
-      icon: 'analytics',
+      icon: 'live_tv',
+      label: 'Live Updates',
+      route: 'map',
+    },
+    {
+      icon: 'info',
       label: 'Service Status',
       route: 'status',
     },
+    {
+      icon: 'settings',
+      label: 'Settings',
+      route: 'settings',
+    },
   ]);
+
+  constructor(private router: Router) {}
 
   profilePicSize = computed(() => this.sideNavCollapsed() ? '32' : '100');
 
 
+  redirectToHome(path: string) {
+    this.router.navigate([path]);
+  }
 }

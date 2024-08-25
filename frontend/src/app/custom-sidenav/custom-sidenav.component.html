@@ -3,7 +3,8 @@
         [width]="profilePicSize()" 
         [height]="profilePicSize()" 
         src="../../assets/images/bus-stop-icon.png" 
-    />
+        (click)="redirectToHome('')"
+    >
     <div class="header-text" [class.hide-header-text]="sideNavCollapsed()">
         <h2>Live Bus MTL.</h2>
     </div>
@@ -13,6 +14,7 @@
             *ngFor="let item of menuItems()" 
             [routerLink]="item.route"
             routerLinkActive
+            routerLinkActive="active-link"
             #rla="routerLinkActive"
             [activated]="rla.isActive"
         >

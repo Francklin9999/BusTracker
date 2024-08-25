@@ -1,11 +1,17 @@
+@import "../../styles/variables.scss";
+
+
 .sidenav-header {
     padding-top: 24px;
     text-align: center;
+    color: $white-background;
 
     > img {
         border-radius: 100%;
         object-fit: cover;
         margin-bottom: 10px;
+        background-color: $white-background;
+        padding: 2px;
     }
 
     .header-text {
@@ -20,9 +26,23 @@
             font-size: 0.8rem;
         }
     }
+    
 }
 
 .hide-header-text {
     opacity: 0;
     height: 0px;
+    color: $white-background;
+}
+
+mat-nav-list a span {
+    color: $white-background;
+}
+
+mat-nav-list a {
+    text-align: left;
+}
+
+mat-nav-list a.active-link span {
+    color: $black-background !important;
 }

@@ -2,10 +2,8 @@
 
     <div class="left-section">
       <h3 class="title">Plan a trip.<br />Decide where you want to go.</h3>
-      <div>
-        <div class="map-container">
-          <div class="map" #map></div>
-        </div>
+      <div class="map-container">
+        <div class="map" #map></div>
       </div>
     </div>
   
@@ -34,15 +32,19 @@
   
       <div class="bus-section" *ngIf="selectedOption === 'busNearYou'">
         <h4 class="right-section-text">Bus near you</h4>
-        <div *ngIf="tripData">
+        <div *ngIf="tripData" class="buses-content">
           <div class="buses" *ngFor="let stopId of getStopIds()">
-            <div *ngFor="let trip of tripData[stopId]">
-              <h4>Ligne: {{ trip.routeId }}</h4>
-              <p>Prochain passage: {{ trip.arrival.time }} minutes</p>
+            <div *ngFor="let trip of tripData[stopId]" class="bus-data">
+              <h4>Line: {{ trip.routeId }}</h4>
+              <p>Next passage: {{ trip.arrival.time }} minutes</p>
               <p>Direction: {{ trip.direction }}</p>
-              <h5>Arrêt: {{ getBusStopName(stopId) }}</h5>
+              <h5>Stop: {{ getBusStopName(stopId) }}</h5>
             </div>
           </div>
+        </div>
+        <div *ngIf="noTripData">
+          <h4>Select a stop to see nearby buses.</h4>
+          <p>If you don't see any stops, zoom in.</p>
         </div>
   
       </div>

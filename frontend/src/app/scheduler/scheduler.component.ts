@@ -94,6 +94,7 @@ export class SchedulerComponent {
   private buttonClickSubscription: Subscription | null = null;
   private messageSubscription: Subscription | undefined;
   tripData: any = {};
+  noTripData: boolean = true;
 
   constructor(private busService: BusService, private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private stopsService: StopsService) {}
 
@@ -102,8 +103,9 @@ export class SchedulerComponent {
       this.handleButtonClick(stopCode);
     });
     this.messageSubscription = this.busService.getMessages().subscribe(message => {
-      console.log('Received WebSocket message:', message);
+      // console.log('Received WebSocket message:', message);
       this.tripData = message['Trip Updates'] || {};
+      this.noTripData = (this.tripData.length === 0);
     });
   }
 

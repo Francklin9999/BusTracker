@@ -1,3 +1,5 @@
+@import "../../styles/variables.scss";
+
 .background {
   background-image: url('../../assets/images/background_home.png');
   background-size: cover;
@@ -10,7 +12,7 @@
 }
 
 .background > .text {
-  color: white;
+  color: inherit;
   font-weight: bold;
   position: absolute;
   display: flex;
@@ -30,6 +32,10 @@
   rgba(0,0,0,.6) 80%,
   rgba(0,0,0,0.4) 90%,
   rgba(0,0,0,0) 100%);
+}
+
+.text > h2, h5 {
+  color: $white-background;
 }
 
 .text-info {
@@ -72,23 +78,25 @@
 
 .buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
-.buttons button {
+.buttons a button {
   background-color: rgb(68, 68, 68);
-  color: white;
+  color: inherit;
   border: none; 
   border-radius: 12px;
   box-shadow: none; 
   font-size: 1rem; 
   cursor: pointer; 
   outline: none; 
+  color: white;
 }
 
 .buttons button:hover,
 .buttons button:focus {
   background-color: rgba(0,0,0,0.1); 
 
-  color: white; 
+  color: inherit; 
 }

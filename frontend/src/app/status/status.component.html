@@ -39,6 +39,13 @@
                 <p>End Date: {{ formatDate(period.end) }}</p>
             </div>
             </div>
-        </div>  
+        </div> 
+        <div *ngIf="noData">
+            <div class="no-data-message">
+                No data is currently available. <br />
+                For info about metro status you can visit <a href="https://www.stm.info/en/info/networks/bus" target="_blank" rel="noopener noreferrer">STM BUS STATUS</a> .<br />
+                For info about bus status you can visit <a href="https://www.stm.info/en/info/service-updates/metro" target="_blank" rel="noopener noreferrer">STM METRO STATUS</a>.
+            </div>
+        </div>
     </div>
 </div>

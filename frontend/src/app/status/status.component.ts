@@ -29,6 +29,7 @@ export class StatusComponent {
 
   dataMap: { [key: string]: any } = {};
   filteredItems: { [key: string]: any } = {};
+  noData: boolean = false;
 
   myControl = new FormControl('');
   options: string[] = [ 'All', '1', '2', '4', '5',
@@ -67,8 +68,9 @@ export class StatusComponent {
     this.statusService.getData().subscribe(
       data => {
         this.dataMap = data;
+        console.log(this.dataMap)
         this.filteredItems = this.dataMap;
-        console.log(data);
+        this.noData = Object.keys(this.dataMap).length === 0;
       },
       error => {
         console.error('Error fetching data', error);

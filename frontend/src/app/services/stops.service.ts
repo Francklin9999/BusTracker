@@ -159,4 +159,19 @@ export class StopsService {
 
     return nearbyStops;
   }
+
+  getNearbyStopsByLocation(lat: number, lng: number, distance: number): any[] {
+    const nearbyStops: any[] = [];
+    
+    Object.keys(this.stops).forEach(key => {
+        const stop = this.stops[key];
+        const dist = this.calculateDistance(lat, lng, stop.stop_lat, stop.stop_lon);
+        if (dist <= distance) {
+            nearbyStops.push(stop.stop_code);
+        }
+    });
+
+    return nearbyStops;
+}
+
 }

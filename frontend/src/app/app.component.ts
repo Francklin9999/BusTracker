@@ -8,12 +8,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { LiveBusComponent } from './live-bus/live-bus.component';
 import { CustomSidenavComponent } from "./custom-sidenav/custom-sidenav.component";
-import { HomeComponent } from './home/home.component';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, GoogleMapsModule, CommonModule, RouterOutlet, MatToolbarModule, MatButtonModule, MatIconModule, MatSidenavModule, LiveBusComponent, CustomSidenavComponent],
+  imports: [RouterOutlet, CommonModule, GoogleMapsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatSidenavModule, LiveBusComponent, CustomSidenavComponent],
+  // providers: [provideHttpClient(withFetch())],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
