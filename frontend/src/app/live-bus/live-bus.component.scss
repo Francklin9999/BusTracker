@@ -74,6 +74,11 @@
   padding: 5px 0;
 }
 
+.time-info {
+  display: flex;
+  justify-content: space-between;
+}
+
 button {
   margin-left: 10px;
   padding: 5px 10px;

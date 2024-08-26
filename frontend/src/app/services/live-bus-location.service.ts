@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LiveBusLocationService {
 
+  private websocketSubject: BehaviorSubject<WebSocket | null> = new BehaviorSubject<WebSocket | null>(null);
   private markers: google.maps.Marker[] = [];
   private imageUrl: string = '../assets/images/bus-stop-icon.png';
 
@@ -25,6 +26,9 @@ export class LiveBusLocationService {
     this.socket = new WebSocket(this.wsUrl);
 
     this.socket.onopen = () => {
+      if (this.socket) {
+        this.websocketSubject.next(this.socket);
+      }
       console.log('WebSocket connection opened');
     };
 
@@ -125,4 +129,10 @@ export class LiveBusLocationService {
 
     map.addListener('zoom_changed', updateMarkerSize);
   }
+
+  getWebSocket(): Observable<WebSocket | null> {
+    return this.websocketSubject.asObservable();
+  }
+
+
 }

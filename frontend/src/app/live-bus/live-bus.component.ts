@@ -15,6 +15,7 @@ import { StopsService } from '../services/stops.service';
 export class LiveBusComponent {
 
   private liveBusSubscription: Subscription | undefined;
+  isLocation: boolean = false;
   busLocation: any = [];
   markers: { [key: string]: google.maps.Marker } = {};
   markerData: { [key: string]: any } = {};
@@ -115,7 +116,7 @@ export class LiveBusComponent {
         // console.log('Received WebSocket message:', message);
         this.tripData = message['Trip Updates'] || {};
         this.noTripData = (this.tripData.length === 0);
-        console.log(this.tripData);
+        // console.log(this.tripData);
       });
     }
     ngOnDestroy(): void {
@@ -128,14 +129,16 @@ export class LiveBusComponent {
 
     ngAfterViewInit(): void {
       this.initMap();
-      setTimeout(() => {
-        this.liveBus.sendMessage('vehiclePositions', {});
-    }, 10000)
-    this.stopsService.getParsedData().subscribe((data: any) => {
-      this.busStops = Object.values(data);
-    },
-    (error: any) => {
-      console.error('Error fetching or parsing csv bus stops data', error);
+      this.stopsService.getParsedData().subscribe((data: any) => {
+        this.busStops = Object.values(data);
+      },
+      (error: any) => {
+        console.error('Error fetching or parsing csv bus stops data', error);
+        });
+      this.liveBus.getWebSocket().subscribe((ws) => {
+        if (ws) {
+          this.liveBus.sendMessage('vehiclePositions', {});
+        }
       });
     }
   
@@ -170,8 +173,9 @@ export class LiveBusComponent {
             position: clickedLocation,
             map: this.map,
         });
+        this.isLocation = true;
         const nearbyStops = this.stopsService.getNearbyStopsByLocation(lat, lng, 250);
-        console.log('Nearby stops:', nearbyStops);
+        // console.log('Nearby stops:', nearbyStops);
         this.busService.sendMessage('tripUpdates', { dataArray: nearbyStops });
       });
     }
@@ -185,10 +189,30 @@ export class LiveBusComponent {
         const currentStatus = this.statusMap[bus.currentStatus] || bus.currentStatus;
         const occupancy = this.occupancyMap[bus.occupancyStatus] || bus.occupancyStatus;
         const tripId = bus.tripId;
+
+        const infoWindowContent = `
+          <div>Line: <strong>${key}</strong></div>
+          <br/>
+          <div>Status: <strong>${currentStatus}</strong></div>
+          <br/>
+          <div>Occupancy: <strong>${occupancy}</strong></div>
+          <br/>
+          <div>Last update: <strong>${this.calculateTimeDifference(bus.timeDifference)} </strong></div>
+          <br/>
+          <div>Trip Id: <strong>${tripId}</strong></div>
+        `;
   
         if (this.markers[key]) {
           this.markers[key].setPosition({ lat, lng });
           this.markers[key].setTitle(`Bus ID: ${key}`);
+
+          const infoWindow = this.markers[key].get('infoWindow');
+
+          if (infoWindow) {
+            infoWindow.setContent('');
+            infoWindow.setContent(infoWindowContent);
+          } 
+
         } else {
           const marker = new google.maps.Marker({
             position: { lat, lng },
@@ -197,20 +221,11 @@ export class LiveBusComponent {
             icon: this.markerIcon,
           });
 
-          const infoWindow = new google.maps.InfoWindow();
+          const infoWindow = new google.maps.InfoWindow({
+            content: infoWindowContent,
+          });
 
           marker.addListener('mouseover', () => {
-            infoWindow.setContent(`
-              <div>Line: <strong>${key}</strong></div>
-              <br/>
-              <div>Status: <strong>${currentStatus}</strong></div>
-              <br/>
-              <div>Occupancy: <strong>${occupancy}</strong></div>
-              <br/>
-              <div>Last update: <strong>${this.calculateTimeDifference(bus.timeDifference)} </strong></div>
-              <br/>
-              <div>Trip Id: <strong>${tripId}</strong></div>
-            `);
             infoWindow.open(this.map, marker);
           });
     
@@ -263,7 +278,10 @@ export class LiveBusComponent {
 
   isRealTimeBus(busNumber: any): boolean {
     const number = parseInt(busNumber);
-    return this.busLocation.some((bus: any) => bus === number);
+    if(this.markers[number]) {
+      return true;
+    }
+    return false;
   }
   getKeys(obj: object): string[] {
     return Object.keys(obj);

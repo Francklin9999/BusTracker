@@ -2,7 +2,7 @@
 
     <div class="left-section">
       <div class="left-section-content">
-        <h3>Real Time Positio of Montreal Transit. </h3>
+        <h3>Real Time Position of Montreal Transit. </h3>
         <p>Click on the map to see bus near a location or click <a routerLink="/trip">here</a> to schedule a trip.</p>
       </div> 
       <div class="map-container">
@@ -13,7 +13,10 @@
       
     <div class="right-section">
       <h3>Bus near you</h3>
-      <div class="location" *ngIf="location">
+      <div class="location" *ngIf="!isLocation">
+        <p>Click on the map to get bus near a location.</p>
+      </div>
+      <div class="location" *ngIf="isLocation">
         <p>lat: {{location.lat}}</p>
         <p>lng: {{location.lng}}</p>
       </div>
@@ -27,11 +30,11 @@
         <div *ngIf="selectedKey === key" class="bus-data">
           <div *ngFor="let trip of tripData[key]">
             <p><strong>Line:</strong> {{ trip.routeId }}</p>
-            <div>
-              <p><strong>Arrival Time:</strong> {{ trip.arrival.time }}</p>
-              <!-- <div *ngIf="isRealTimeBus(trip.routeId)">
+            <div class="time-info">
+              <p><strong>Arrive in:</strong> {{ trip.arrival.time }} min</p>
+              <div *ngIf="isRealTimeBus(trip.routeId)">
                 <p>LIVE</p>
-              </div> -->
+              </div>
             </div>
             <p><strong>Schedule Relationship:</strong> {{ capitalizeFirstLetter(trip.scheduleRelationship.toLowerCase()) }}</p>
             <p><strong>Direction:</strong> {{ trip.direction }}</p>

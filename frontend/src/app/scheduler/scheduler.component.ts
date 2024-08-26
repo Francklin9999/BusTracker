@@ -96,6 +96,8 @@ export class SchedulerComponent {
   tripData: any = {};
   noTripData: boolean = true;
 
+  selectedKey: string | null = null;
+
   constructor(private busService: BusService, private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private stopsService: StopsService) {}
 
   ngOnInit(): void {
@@ -215,6 +217,10 @@ export class SchedulerComponent {
 
   getStopIds(): string[] {
     return Object.keys(this.tripData);
+  }
+
+  toggleDropdown(key: string): void {
+    this.selectedKey = this.selectedKey === key ? null : key;
   }
 
   getBusStopName(stopId: string): string {

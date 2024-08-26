@@ -34,11 +34,18 @@
         <h4 class="right-section-text">Bus near you</h4>
         <div *ngIf="tripData" class="buses-content">
           <div class="buses" *ngFor="let stopId of getStopIds()">
-            <div *ngFor="let trip of tripData[stopId]" class="bus-data">
-              <h4>Line: {{ trip.routeId }}</h4>
-              <p>Next passage: {{ trip.arrival.time }} minutes</p>
-              <p>Direction: {{ trip.direction }}</p>
-              <h5>Stop: {{ getBusStopName(stopId) }}</h5>
+            <h5 class="ft-1">
+              Stop: {{ getBusStopName(stopId) }}
+            </h5>
+            <button (click)="toggleDropdown(stopId)">
+              {{ selectedKey === stopId ? 'Hide' : 'Details' }}
+            </button>
+            <div *ngIf="selectedKey === stopId" class="bus-data">
+              <div *ngFor="let trip of tripData[stopId]" class="bus-data">
+                <h4>Line: {{ trip.routeId }}</h4>
+                <p>Next passage: {{ trip.arrival.time }} minutes</p>
+                <p>Direction: {{ trip.direction }}</p>
+              </div>
             </div>
           </div>
         </div>

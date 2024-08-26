@@ -70,12 +70,13 @@ export class StatusComponent {
         this.dataMap = data;
         console.log(this.dataMap)
         this.filteredItems = this.dataMap;
-        this.noData = Object.keys(this.dataMap).length === 0;
       },
       error => {
         console.error('Error fetching data', error);
       }
-    );
+    ).add(() => {
+      this.noData = Object.keys(this.dataMap).length === 0;
+    });
 
     this.filteredOptions = this.myControl.valueChanges.pipe(
       startWith(''),

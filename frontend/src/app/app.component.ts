@@ -9,6 +9,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { LiveBusComponent } from './live-bus/live-bus.component';
 import { CustomSidenavComponent } from "./custom-sidenav/custom-sidenav.component";
 import { provideHttpClient, withFetch } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -24,4 +25,13 @@ export class AppComponent {
   collapsed = signal(true);
 
   sidenavWidth = computed(() => this.collapsed() ? '65px' : '250px');
+
+  constructor(private router: Router) {}
+
+  ngOnInit() :void {
+    if (performance.navigation?.type === performance.navigation?.TYPE_RELOAD) {
+      console.log('Page was reloaded');
+      this.router.navigate(['/']);
+    }
+  }
 }
