@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { WebSocketService } from './websocket.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,49 +12,16 @@ export class LiveBusLocationService {
   private markers: google.maps.Marker[] = [];
   private imageUrl: string = '../assets/images/bus-stop-icon.png';
 
-  private wsUrl = 'ws://localhost:8080/ws';
-  private socket: WebSocket | undefined;
   private messageSubject: Subject<any> = new Subject<any>();
 
-  constructor(private http: HttpClient) {
-    try {
-      this.connectWebSocket();
-    } catch(error) {
-      console.log('Error connecting to WebSocket:', error);
-    }
-  }
-  private connectWebSocket() {
-    this.socket = new WebSocket(this.wsUrl);
-
-    this.socket.onopen = () => {
-      if (this.socket) {
-        this.websocketSubject.next(this.socket);
-      }
-      console.log('WebSocket connection opened');
-    };
-
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      this.messageSubject.next(data);
-    };
-
-    this.socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    this.socket.onclose = (event) => {
-      console.log('WebSocket connection closed', event);
-    };
+  constructor(private http: HttpClient, private webSocket: WebSocketService) {
+    this.webSocket.getMessages().subscribe(message => {
+      this.messageSubject.next(message);
+    });
   }
 
   sendMessage(action: string, params: any) {
-    const message = JSON.stringify({ action, params });
-    console.log("sendMessage")
-    if (this.socket?.readyState === WebSocket.OPEN) {
-      this.socket.send(message);
-    } else {
-      console.error('WebSocket is not open. Message not sent.');
-    }
+    this.webSocket.sendMessage(action, params);
   }
   
   getMessages(): Observable<any> {

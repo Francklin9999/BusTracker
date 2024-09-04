@@ -135,11 +135,7 @@ export class LiveBusComponent {
       (error: any) => {
         console.error('Error fetching or parsing csv bus stops data', error);
         });
-      this.liveBus.getWebSocket().subscribe((ws) => {
-        if (ws) {
-          this.liveBus.sendMessage('vehiclePositions', {});
-        }
-      });
+      this.liveBus.sendMessage('vehiclePositions', {});
     }
   
     initMap(): void {

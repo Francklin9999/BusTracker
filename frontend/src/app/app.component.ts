@@ -10,6 +10,7 @@ import { LiveBusComponent } from './live-bus/live-bus.component';
 import { CustomSidenavComponent } from "./custom-sidenav/custom-sidenav.component";
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { WebSocketService } from './services/websocket.service';
 
 @Component({
   selector: 'app-root',
@@ -26,12 +27,16 @@ export class AppComponent {
 
   sidenavWidth = computed(() => this.collapsed() ? '65px' : '250px');
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private webSocket: WebSocketService) {}
 
   ngOnInit() :void {
     if (performance.navigation?.type === performance.navigation?.TYPE_RELOAD) {
       console.log('Page was reloaded');
       this.router.navigate(['/']);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.webSocket.closeConnection();
   }
 }
