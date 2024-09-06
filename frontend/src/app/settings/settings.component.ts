@@ -14,8 +14,12 @@ export class SettingsComponent {
 
   constructor(private themeService: ThemeService) {}
 
-  toggleTheme() {
-    this.themeService.toggleTheme();
+  // toggleTheme() {
+  //   this.themeService.toggleTheme();
+  // }
+
+  toggleMode(value: boolean): void {
+    this.themeService.toggleLightMode(value);
   }
 
   closeSettings(): void {

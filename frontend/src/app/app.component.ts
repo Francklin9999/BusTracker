@@ -1,4 +1,4 @@
-import { Component, computed, Renderer2, signal } from '@angular/core';
+import { Component, computed, Inject, Renderer2, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { GoogleMapsModule } from '@angular/google-maps';
@@ -31,7 +31,13 @@ export class AppComponent {
 
   private isLightModeSubscription: Subscription | undefined;
 
-  constructor(private router: Router, private webSocket: WebSocketService, private themeService: ThemeService, private renderer: Renderer2) {}
+  constructor(
+    private router: Router, 
+    private webSocket: WebSocketService, 
+    private themeService: ThemeService, 
+    private renderer: Renderer2, 
+    @Inject(DOCUMENT) private document: Document,
+  ) {}
 
   ngOnInit() :void {
     if (performance.navigation?.type === performance.navigation?.TYPE_RELOAD) {
@@ -40,9 +46,13 @@ export class AppComponent {
     }
     this.isLightModeSubscription = this.themeService.isLightMode$.subscribe(isLightMode => {
       if (isLightMode) {
-        this.renderer.addClass(document.body, 'light-mode');
+        this.renderer.addClass(this.document.body, 'light-mode');
+        const elements = this.document.querySelectorAll('.background-image');
+        elements.forEach(el => this.renderer.addClass(el, 'no-invert'));
       } else {
-        this.renderer.removeClass(document.body, 'light-mode');
+        this.renderer.removeClass(this.document.body, 'light-mode');
+        const elements = this.document.querySelectorAll('.background-image');
+        elements.forEach(el => this.renderer.removeClass(el, 'no-invert'));
       }
     });
   }
