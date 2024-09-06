@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { ThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'app-settings',
@@ -9,11 +10,12 @@ import { Component } from '@angular/core';
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent {
-  isSettingsVisible = true; // Control visibility
+  isSettingsVisible = true; 
 
-  setMode(mode: string): void {
-    // Implement your logic for setting day/night mode
-    console.log(`Switching to ${mode} mode`);
+  constructor(private themeService: ThemeService) {}
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 
   closeSettings(): void {

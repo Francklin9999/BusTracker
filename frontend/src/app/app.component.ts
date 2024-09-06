@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, Renderer2, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { GoogleMapsModule } from '@angular/google-maps';
@@ -11,6 +11,8 @@ import { CustomSidenavComponent } from "./custom-sidenav/custom-sidenav.componen
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { WebSocketService } from './services/websocket.service';
+import { ThemeService } from './services/theme.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -27,16 +29,28 @@ export class AppComponent {
 
   sidenavWidth = computed(() => this.collapsed() ? '65px' : '250px');
 
-  constructor(private router: Router, private webSocket: WebSocketService) {}
+  private isLightModeSubscription: Subscription | undefined;
+
+  constructor(private router: Router, private webSocket: WebSocketService, private themeService: ThemeService, private renderer: Renderer2) {}
 
   ngOnInit() :void {
     if (performance.navigation?.type === performance.navigation?.TYPE_RELOAD) {
       console.log('Page was reloaded');
       this.router.navigate(['/']);
     }
+    this.isLightModeSubscription = this.themeService.isLightMode$.subscribe(isLightMode => {
+      if (isLightMode) {
+        this.renderer.addClass(document.body, 'light-mode');
+      } else {
+        this.renderer.removeClass(document.body, 'light-mode');
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.webSocket.closeConnection();
+    if (this.isLightModeSubscription) {
+      this.isLightModeSubscription.unsubscribe();
+    }
   }
 }
