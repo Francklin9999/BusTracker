@@ -12,10 +12,24 @@
     </mat-sidenav>
     <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
       <!-- Wrapper-->
+      <div *ngIf="isWebSocketError" class="webSocketError">
+        <div class="col">
+          <p>An error on our end as occur</p>
+        </div>
+        <div class="col">
+          <p>Refresh your browser to get live updates</p>
+        </div>
+        <div class="col">
+          <p>If this issue persist, open an issue on our github 
+            <a href="https://github.com/Francklin9999/BusTracker" target="_blank" rel="noopener noreferrer">here</a>.
+          </p>
+        </div>
+      </div>
       <router-outlet></router-outlet>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>
+
 
 
 

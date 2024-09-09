@@ -21,6 +21,7 @@ var upgrader = websocket.Upgrader{
 }
 
 var stopVehiclePositions chan struct{}
+var tripUpdates chan struct{}
 
 func SetupRoutes(router *gin.Engine) {
 	router.GET("/ws", handleWebSocket)
@@ -63,22 +64,30 @@ func handleWebSocket(c *gin.Context) {
 		case "tripUpdates":
 			if stopIds == nil {
 				handleTripUpdates()
-				go scheduleAPICallsTripUpdates()
+				tripUpdates = make(chan struct{})
+				go scheduleAPICallsTripUpdates(ws, tripUpdates)
 			}
 			data, err := selectedTripUpdates(request.Params.DataArray)
 			if err != nil {
 				log.Println("Error while processing trip updates: ", err)
+				// c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
 			}
 			ws.WriteJSON(map[string]map[string][]StopData{"Trip Updates": data})
+		case "tripUpdateClosed":
+			if tripUpdates != nil {
+				close(tripUpdates)
+			}
 		case "vehiclePositions":
 			data2, err := GetVehiclePositions()
 			if err != nil {
 				log.Println("Error while getting vehicle positions: ", err)
+				// c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
 				return
 			}
 			err = ws.WriteJSON(map[string]string{"vehiclePositions": data2})
 			if err != nil {
 				ws.WriteJSON(map[string]string{"vehiclePositions": "Error fetching vehiclePositions"})
+				// c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
 			}
 			stopVehiclePositions = make(chan struct{})
 			go scheduleAPICallsVehiclePositions(ws, stopVehiclePositions)
@@ -90,6 +99,7 @@ func handleWebSocket(c *gin.Context) {
 			err = ws.WriteMessage(websocket.TextMessage, []byte("Invalid request"))
 			if err != nil {
 				log.Println("Error while writing error fetching message: ", err)
+				// c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request action"})
 				return
 			}
 		}

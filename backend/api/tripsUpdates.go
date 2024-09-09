@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Francklin9999/BusTracker/service"
+	"github.com/gorilla/websocket"
 )
 
 func GetTripUpdates() (string, error) {
@@ -23,11 +24,14 @@ func GetTripUpdates() (string, error) {
 	return modifiedData, nil
 }
 
-func scheduleAPICallsTripUpdates() {
+func scheduleAPICallsTripUpdates(ws *websocket.Conn, stopChan chan struct{}) {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 	for {
 		select {
+		case <-stopChan:
+			log.Println("Stopping tripUpdates")
+			return
 		case <-ticker.C:
 			handleTripUpdates()
 		}
@@ -53,7 +57,7 @@ func transormfTripUpdates(jsonData []byte) map[string][]StopData {
 
 	var root Root
 	if err := json.Unmarshal([]byte(jsonData), &root); err != nil {
-		log.Fatalf("Error unmarshalling JSON: %v", err)
+		log.Println("Error unmarshalling JSON: %v", err)
 	}
 
 	stopMap := make(map[string][]StopData)

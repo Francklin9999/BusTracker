@@ -9,6 +9,9 @@ export class WebSocketService {
   private wsUrl = 'ws://localhost:8080/ws';
   private socket: WebSocket | undefined;
   private messageSubject = new Subject<string>();
+  private errorSubject = new Subject<string>();
+
+  error$: Observable<string> = this.errorSubject.asObservable();
 
   public messages$ = this.messageSubject.asObservable();
 
@@ -20,6 +23,10 @@ export class WebSocketService {
 
   private connectWebSocket() {
     if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       return;
     }
 
@@ -36,7 +43,7 @@ export class WebSocketService {
       };
 
       this.socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        this.errorSubject.next('WebSocket error: ' + error);
       };
 
       this.socket.onclose = (event) => {
@@ -44,6 +51,7 @@ export class WebSocketService {
       };
     } catch (error) {
       console.error('Error connecting to WebSocket:', error);
+      this.errorSubject.next('Error connecting to WebSocket: ' + error);
     }
   }
 

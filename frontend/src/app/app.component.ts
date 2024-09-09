@@ -31,6 +31,8 @@ export class AppComponent {
 
   private isLightModeSubscription: Subscription | undefined;
 
+  isWebSocketError: boolean = false;
+
   constructor(
     private router: Router, 
     private webSocket: WebSocketService, 
@@ -54,6 +56,9 @@ export class AppComponent {
         const elements = this.document.querySelectorAll('.background-image');
         elements.forEach(el => this.renderer.removeClass(el, 'no-invert'));
       }
+    });
+    this.webSocket.error$.subscribe(errorMessage => {
+      this.isWebSocketError = true;
     });
   }
 

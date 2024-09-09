@@ -92,11 +92,13 @@ export class SchedulerComponent {
   }> = [];
   
   private buttonClickSubscription: Subscription | null = null;
-  private messageSubscription: Subscription | undefined;
+  private tripUpdatesSubscription: Subscription | undefined;
   tripData: any = {};
   noTripData: boolean = true;
 
   selectedKey: string | null = null;
+
+  isWebsocket: boolean | undefined;
 
   constructor(private busService: BusService, private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private stopsService: StopsService) {}
 
@@ -104,7 +106,7 @@ export class SchedulerComponent {
     this.buttonClickSubscription = this.stopsService.buttonClick$.subscribe(stopCode => {
       this.handleButtonClick(stopCode);
     });
-    this.messageSubscription = this.busService.getMessages().subscribe(message => {
+    this.tripUpdatesSubscription = this.busService.getMessages().subscribe(message => {
       // console.log('Received WebSocket message:', message);
       this.tripData = message['Trip Updates'] || {};
       this.noTripData = (this.tripData.length === 0);
@@ -115,8 +117,9 @@ export class SchedulerComponent {
     if (this.buttonClickSubscription) {
       this.buttonClickSubscription.unsubscribe();
     }
-    if (this.messageSubscription) {
-      this.messageSubscription.unsubscribe();
+    if (this.tripUpdatesSubscription) {
+      this.busService.sendMessage('tripUpdatesClosed', {})
+      this.tripUpdatesSubscription.unsubscribe();
     }
   }
 
@@ -149,19 +152,24 @@ export class SchedulerComponent {
   }
 
   initAutocomplete(): void {
-    this.departureAutocomplete = new google.maps.places.Autocomplete(this.departureLocationInput.nativeElement);
-    this.arrivalAutocomplete = new google.maps.places.Autocomplete(this.arrivalLocationInput.nativeElement);
-  }
+    if(this.selectedOption === "whereToGo") {
+      this.departureAutocomplete = new google.maps.places.Autocomplete(this.departureLocationInput.nativeElement);
+      this.arrivalAutocomplete = new google.maps.places.Autocomplete(this.arrivalLocationInput.nativeElement);
+      }
+    }
 
   showOption(value: string) {
     this.selectedOption = value;
+    if(value === "whereToGo")
+    setTimeout(()=>
+      this.initAutocomplete(), 100)
   }
 
   handleClick() {
     const departurePlace = this.departureAutocomplete.getPlace();
     const arrivalPlace = this.arrivalAutocomplete.getPlace();
 
-    const departureDateTimeString = `${this.departureDateInput}T${this.departureTimeInput}`;
+    const departureDateTimeString = `${this.departureDateInput.nativeElement.value}T${this.departureTimeInput.nativeElement.value}`;
   
     if (!departurePlace || !arrivalPlace || !departurePlace.geometry?.location || !arrivalPlace.geometry?.location) {
       console.error('One or both of the places are not selected or locations are undefined');

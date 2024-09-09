@@ -1,6 +1,7 @@
 @import "../styles/variables.scss";
 
 .wrapper {
+    position: relative;
     height: 100vh;
     width: 100%;
     margin: 0;
@@ -66,5 +67,17 @@ mat-sidenav-content {
     justify-content: center;
 }
 
+.webSocketError {
+    position: sticky;
+    width: 100%;
+    height: auto;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    background-color: red !important;
+    color: blue;
+}
   
   

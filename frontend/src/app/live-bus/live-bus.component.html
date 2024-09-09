@@ -20,6 +20,9 @@
         <p>lat: {{location.lat}}</p>
         <p>lng: {{location.lng}}</p>
       </div>
+      <div *ngIf="noTripData">
+        <p>No bus near this location. <br /> Select another location to se nearby buses.</p>
+      </div>
       <div *ngFor="let key of getKeys(tripData)" class="bus-content">
         <h5 class="ft-1">
           Stop: {{ getBusStopName(key) }}

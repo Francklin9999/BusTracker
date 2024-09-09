@@ -23,9 +23,9 @@ export class LiveBusComponent {
   map: google.maps.Map | any;
 
   private buttonClickSubscription: Subscription | null = null;
-  private messageSubscription: Subscription | undefined;
+  private tripUpdatesSubscription: Subscription | undefined;
   tripData: any = {};
-  noTripData: boolean = true;
+  noTripData: boolean | undefined;
 
   busStops: any[] | null = null;
 
@@ -112,17 +112,21 @@ export class LiveBusComponent {
       this.buttonClickSubscription = this.stopsService.buttonClick$.subscribe(stopCode => {
         // this.handleButtonClick(stopCode);
       });
-      this.messageSubscription = this.busService.getMessages().subscribe(message => {
+      this.tripUpdatesSubscription = this.busService.getMessages().subscribe(message => {
         // console.log('Received WebSocket message:', message);
         this.tripData = message['Trip Updates'] || {};
-        this.noTripData = (this.tripData.length === 0);
+        this.noTripData = (this.tripData.length === 0) ? true : false;
         // console.log(this.tripData);
       });
     }
     ngOnDestroy(): void {
       if (this.liveBusSubscription) {
-        // this.liveBus.sendMessage('vehiclePositionsClosed', {})
+        this.liveBus.sendMessage('vehiclePositionsClosed', {})
         this.liveBusSubscription.unsubscribe();
+      }
+      if (this.tripUpdatesSubscription) {
+        this.busService.sendMessage('tripUpdatesClosed', {})
+        this.tripUpdatesSubscription.unsubscribe();
       }
       // this.clearMarkers();
     }
