@@ -12,7 +12,7 @@ export class StopsService {
   private filePath = 'assets/files/stops.csv';
   private markers: google.maps.Marker[] = [];
   private previousZoom: number = 15;
-  private imageUrl: string = '../assets/images/bus-stop-icon.png';
+  private imageUrl: string = '../assets/images/bus-stop-icon2.png';
 
   private stops: { [key: string]: any } = {};
 

@@ -10,7 +10,7 @@ export class LiveBusLocationService {
 
   private websocketSubject: BehaviorSubject<WebSocket | null> = new BehaviorSubject<WebSocket | null>(null);
   private markers: google.maps.Marker[] = [];
-  private imageUrl: string = '../assets/images/bus-stop-icon.png';
+  private imageUrl: string = '../assets/images/bus-stop-icon2.png';
 
   private messageSubject: Subject<any> = new Subject<any>();
 
@@ -101,6 +101,5 @@ export class LiveBusLocationService {
   getWebSocket(): Observable<WebSocket | null> {
     return this.websocketSubject.asObservable();
   }
-
 
 }

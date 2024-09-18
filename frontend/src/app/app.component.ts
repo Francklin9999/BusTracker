@@ -1,6 +1,6 @@
-import { Component, computed, Inject, Renderer2, signal } from '@angular/core';
+import { Component, computed, Inject, Renderer2, signal, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button'
@@ -39,9 +39,13 @@ export class AppComponent {
     private themeService: ThemeService, 
     private renderer: Renderer2, 
     @Inject(DOCUMENT) private document: Document,
+    @Inject(PLATFORM_ID) private platformId: Object,
   ) {}
 
   ngOnInit() :void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadGoogleMaps();
+    }
     if (performance.navigation?.type === performance.navigation?.TYPE_RELOAD) {
       console.log('Page was reloaded');
       this.router.navigate(['/']);
@@ -61,7 +65,17 @@ export class AppComponent {
       this.isWebSocketError = true;
     });
   }
-
+  loadGoogleMaps(): void {
+    if (!document.getElementById('google-maps-script')) {
+      const script = this.renderer.createElement('script');
+      script.id = 'google-maps-script';
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAvA_6QVheDXXUhvT6nG5LBLBaIfCeZYWQ&loading=async&libraries=places';
+      script.async = true;
+      script.defer = true;
+      this.renderer.appendChild(document.body, script);
+    }
+  }
+  
   ngOnDestroy(): void {
     this.webSocket.closeConnection();
     if (this.isLightModeSubscription) {

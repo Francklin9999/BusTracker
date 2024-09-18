@@ -12,7 +12,7 @@
         <button class="buttons" [ngClass]="{'active': selectedOption === 'whereToGo'}" (click)="showOption('whereToGo')">Where do you want to go?</button>
         <button class="buttons" [ngClass]="{'active': selectedOption === 'busNearYou'}" (click)="showOption('busNearYou')">Bus near you</button>
       </div>
-      <div class="directions" *ngIf="selectedOption === 'whereToGo'">
+      <div class="directions no-invert" *ngIf="selectedOption === 'whereToGo'">
         <h4 class="right-section-text">Where do you want to go?</h4>
         <input class="directions-inputs" #departureLocation type="text" placeholder="Enter departure location" />
         <input class="directions-inputs" #arrivalLocation type="text" placeholder="Enter arrival location" />
@@ -33,7 +33,7 @@
         
       </div>
   
-      <div class="bus-section" *ngIf="selectedOption === 'busNearYou'">
+      <div class="bus-section no-invert" *ngIf="selectedOption === 'busNearYou'">
         <h4 class="right-section-text">Bus near you</h4>
         <div *ngIf="tripData" class="buses-content">
           <div class="buses" *ngFor="let stopId of getStopIds()">

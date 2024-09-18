@@ -172,7 +172,7 @@ export class SchedulerComponent {
     const departureDateTimeString = `${this.departureDateInput.nativeElement.value}T${this.departureTimeInput.nativeElement.value}`;
   
     if (!departurePlace || !arrivalPlace || !departurePlace.geometry?.location || !arrivalPlace.geometry?.location) {
-      console.error('One or both of the places are not selected or locations are undefined');
+      console.log('One or both of the places are not selected or locations are undefined');
       return;
     }
   
@@ -218,7 +218,7 @@ export class SchedulerComponent {
     console.log(`Button clicked for stop: ${stopCode}`);
     this.showOption('busNearYou');
     const nearbyStops = this.stopsService.getNearbyStops(stopCode, 250);
-    console.log('Nearby stops:', nearbyStops);
+    // console.log('Nearby stops:', nearbyStops);
     this.cdr.detectChanges();
     this.busService.sendMessage('tripUpdates', { dataArray: nearbyStops });
   }

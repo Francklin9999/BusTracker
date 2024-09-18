@@ -168,6 +168,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 body.light-mode {
     filter: invert(100%);
     background-color: white; 
+    .no-invert {
+        filter: invert(100%);
+    }
+}
+
+.baseInvert {
+    filter: invert(100%);
 }
 
 

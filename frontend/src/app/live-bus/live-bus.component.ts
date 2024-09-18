@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { LiveBusLocationService } from '../services/live-bus-location.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterModule } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { BusService } from '../services/bus.service';
 import { StopsService } from '../services/stops.service';
 @Component({
@@ -30,6 +30,8 @@ export class LiveBusComponent {
   busStops: any[] | null = null;
 
   selectedKey: string | null = null;
+
+  liveBusIcon = '../../assets/images/live-bus-icon2.png'
 
   location = {
     lat: 0,
@@ -118,6 +120,9 @@ export class LiveBusComponent {
         this.noTripData = (this.tripData.length === 0) ? true : false;
         // console.log(this.tripData);
       });
+      setInterval(() => {
+        this.removeStaleMarkers();
+      }, 60000); 
     }
     ngOnDestroy(): void {
       if (this.liveBusSubscription) {
@@ -178,29 +183,87 @@ export class LiveBusComponent {
         // console.log('Nearby stops:', nearbyStops);
         this.busService.sendMessage('tripUpdates', { dataArray: nearbyStops });
       });
+
+      this.updateMarkerSize();
+      this.map.addListener('zoom_changed', () => {
+        this.updateMarkerSize();
+      });
     }
+
+    private updateMarkerSize(): void {
+      const zoom = this.map.getZoom() || 15;
+      const scale = zoom > 13 ? 32 : 16;
+  
+      Object.values(this.markers).forEach(marker => {
+        marker.setIcon({
+          url: this.liveBusIcon,
+          scaledSize: new google.maps.Size(scale, scale),
+          origin: new google.maps.Point(0, 0),
+          anchor: new google.maps.Point(scale / 2, scale)
+        });
+      });
+    }
+
+    private removeStaleMarkers(): void {
+      const now = Math.floor(Date.now() / 1000);
+      const markersToRemove: string[] = [];
+    
+      for (const key in this.markerData) {
+        const bus = this.markerData[key];
+        const lastUpdateTime = bus.timeDiff;
+    
+        if (now - lastUpdateTime > 60) { 
+          markersToRemove.push(key);
+        }
+      }
+    
+      markersToRemove.forEach(key => {
+        if (this.markers[key]) {
+          this.markers[key].setMap(null);
+          delete this.markers[key];
+          delete this.markerData[key];
+        }
+      });
+    }
+    
 
     private updateBusLocations(): void {
       for (const key in this.busLocation) {
         const bus = this.busLocation[key];
         if (this.checkTimeDifference(bus.timeDifference) > 120) continue;
+
         const lat = bus.position.latitude;
         const lng = bus.position.longitude;
         const currentStatus = this.statusMap[bus.currentStatus] || bus.currentStatus;
         const occupancy = this.occupancyMap[bus.occupancyStatus] || bus.occupancyStatus;
         const tripId = bus.tripId;
 
-        const infoWindowContent = `
-          <div>Line: <strong>${key}</strong></div>
-          <br/>
-          <div>Status: <strong>${currentStatus}</strong></div>
-          <br/>
-          <div>Occupancy: <strong>${occupancy}</strong></div>
-          <br/>
-          <div>Last update: <strong>${this.calculateTimeDifference(bus.timeDifference)} </strong></div>
-          <br/>
-          <div>Trip Id: <strong>${tripId}</strong></div>
-        `;
+        const updateInfoWindowContent = (infoWindow: google.maps.InfoWindow) => {
+          const infoWindowContent = `
+            <div>Line: <strong>${key}</strong></div>
+            <br/>
+            <div>Status: <strong>${currentStatus}</strong></div>
+            <br/>
+            <div>Occupancy: <strong>${occupancy}</strong></div>
+            <br/>
+            <div>Last update: <strong>${this.calculateTimeDifference(bus.timeDifference)} </strong></div>
+            <br/>
+            <div>Trip Id: <strong>${tripId}</strong></div>
+          `;
+          infoWindow.setContent(infoWindowContent);
+        };
+
+        // const infoWindowContent = `
+        //   <div>Line: <strong>${key}</strong></div>
+        //   <br/>
+        //   <div>Status: <strong>${currentStatus}</strong></div>
+        //   <br/>
+        //   <div>Occupancy: <strong>${occupancy}</strong></div>
+        //   <br/>
+        //   <div>Last update: <strong>${this.calculateTimeDifference(bus.timeDifference)} </strong></div>
+        //   <br/>
+        //   <div>Trip Id: <strong>${tripId}</strong></div>
+        // `;
   
         if (this.markers[key]) {
           this.markers[key].setPosition({ lat, lng });
@@ -209,9 +272,24 @@ export class LiveBusComponent {
           const infoWindow = this.markers[key].get('infoWindow');
 
           if (infoWindow) {
-            infoWindow.setContent('');
-            infoWindow.setContent(infoWindowContent);
-          } 
+            this.markers[key].addListener('mouseover', () => {
+              updateInfoWindowContent(infoWindow);
+              infoWindow.open(this.map, this.markers[key]);
+            });
+
+            this.markers[key].addListener('click', () => {
+              updateInfoWindowContent(infoWindow);
+              infoWindow.open(this.map, this.markers[key]);
+            });
+  
+            this.markers[key].addListener('mouseout', () => {
+              infoWindow.close();
+            });
+
+            this.markers[key].addListener('click', () => {
+              infoWindow.close();
+            });
+          }  
 
         } else {
           const marker = new google.maps.Marker({
@@ -221,19 +299,28 @@ export class LiveBusComponent {
             icon: this.markerIcon,
           });
 
-          const infoWindow = new google.maps.InfoWindow({
-            content: infoWindowContent,
-          });
+          const infoWindow = new google.maps.InfoWindow();
 
           marker.addListener('mouseover', () => {
+            updateInfoWindowContent(infoWindow);
+            infoWindow.open(this.map, marker);
+          });
+
+          marker.addListener('click', () => {
+            updateInfoWindowContent(infoWindow);
             infoWindow.open(this.map, marker);
           });
     
           marker.addListener('mouseout', () => {
             infoWindow.close();
           });
+
+          marker.addListener('click', () => {
+            infoWindow.close();
+          });
   
           this.markers[key] = marker;
+          this.markers[key].set('infoWindow', infoWindow);
         }
         this.markerData[key] = {
           id: key,
@@ -251,13 +338,14 @@ export class LiveBusComponent {
     }
     
     private markerIcon: google.maps.Icon = {
-      url: '../../assets/images/live-bus-icon.png',
+      url: this.liveBusIcon,
       scaledSize: new google.maps.Size(32, 32), 
       origin: new google.maps.Point(0, 0),
       anchor: new google.maps.Point(16, 32)
     };
 
     private calculateTimeDifference(timestamp: number): string {
+      console.log('here')
       const now = Math.floor(Date.now() / 1000);
     
       const difference = now - timestamp;

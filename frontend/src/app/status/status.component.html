@@ -1,5 +1,5 @@
 <div class="container-fluid content">
-    <div class="row title">
+    <div class="row title no-invert">
         <div>
             <h2 class="title-text">Service Status</h2>
         </div>
@@ -11,6 +11,7 @@
             placeholder="Select a line"
             aria-label="Number"
             #inputBus
+            class="no-invert"
             matInput
             [formControl]="myControl"
             [matAutocomplete]="auto"/>
@@ -19,7 +20,7 @@
                 <mat-option [value]="option">{{option}}</mat-option>
             }
             </mat-autocomplete>
-            <button (click)="filterMap()">Search</button>
+            <button (click)="filterMap()" class="no-invert">Search</button>
         </div>
         <div *ngIf="filteredItems" class="container bus-data gap-3">
             <div *ngFor="let key of getKeys(filteredItems)" class="row bus-status gap-2">
