@@ -27,6 +27,9 @@ export class AppComponent {
   title = 'BusTracker';
   collapsed = signal(true);
 
+  //REPLACE IT WITH YOUR API KEY
+  yourGoogleAPIKEY = 'AIzaSyAvA_6QVheDXXUhvT6nG5LBLBaIfCeZYWQ';
+
   sidenavWidth = computed(() => this.collapsed() ? '65px' : '250px');
 
   private isLightModeSubscription: Subscription | undefined;
@@ -69,7 +72,8 @@ export class AppComponent {
     if (!document.getElementById('google-maps-script')) {
       const script = this.renderer.createElement('script');
       script.id = 'google-maps-script';
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAvA_6QVheDXXUhvT6nG5LBLBaIfCeZYWQ&loading=async&libraries=places';
+      //THIS IS KEY DOES NOT WORK LOL I'M NOT DUMB FEEL FREE TO TRY IT
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${this.yourGoogleAPIKEY}&loading=async&libraries=places`;
       script.async = true;
       script.defer = true;
       this.renderer.appendChild(document.body, script);
