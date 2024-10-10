@@ -1,10 +1,10 @@
-import { Component, ElementRef, AfterViewInit, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Component, ElementRef, AfterViewInit, ViewChild, ChangeDetectorRef, Input } from '@angular/core';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { StopsService } from '../services/stops.service';
 import { BusService } from '../services/bus.service';
+import { LocationService } from '../services/location.service';
 
 
 @Component({
@@ -15,7 +15,9 @@ import { BusService } from '../services/bus.service';
   styleUrl: './scheduler.component.scss'
 })
 export class SchedulerComponent {
+  @Input() clientCoords: GeolocationCoordinates | null = null;
   busStops: any[] = [];
+  groupedTripData: { [key: string]: { [key: string]: { data: any[] } } } = {};
   markerIcon!: google.maps.Icon;
   @ViewChild('map', { static: false }) mapElement!: ElementRef;
   @ViewChild('departureLocation', { static: false }) departureLocationInput!: ElementRef;
@@ -100,7 +102,7 @@ export class SchedulerComponent {
 
   isWebsocket: boolean | undefined;
 
-  constructor(private busService: BusService, private cdr: ChangeDetectorRef, private sanitizer: DomSanitizer, private stopsService: StopsService) {}
+  constructor(private busService: BusService, private cdr: ChangeDetectorRef, private stopsService: StopsService, private locationService: LocationService) {}
 
   ngOnInit(): void {
     this.buttonClickSubscription = this.stopsService.buttonClick$.subscribe(stopCode => {
@@ -110,7 +112,13 @@ export class SchedulerComponent {
       // console.log('Received WebSocket message:', message);
       this.tripData = message['Trip Updates'] || {};
       this.noTripData = (this.tripData.length === 0);
+      this.updateGroupedTripData();
     });
+    if (this.map && this.clientCoords) {
+      this.map!.setCenter({ lat: this.clientCoords.latitude, lng: this.clientCoords.longitude });
+      this.locationService.addMarker(this.map!, this.clientCoords);
+      this.locationService.watchUserLocation(this.map!);
+    }
   }
 
   ngOnDestroy(): void {
@@ -213,9 +221,53 @@ export class SchedulerComponent {
       );
     }
   }
+  updateGroupedTripData() {
+    this.groupedTripData = {};
+  
+    for (const stopId in this.tripData) {
+      this.tripData[stopId].forEach((trip: any) => {
+        console.log(trip)
+        const id = trip.id;
+        const arrivalTime = parseInt(trip.arrival.time, 10);
+        const relationship = trip.scheduleRelationship;
+        const routeId = trip.routeId;
+        const direction = trip.direction;
+
+        const newTrip = { id, arrivalTime, relationship, routeId, direction }
+
+        if (!this.groupedTripData[routeId]) {
+          this.groupedTripData[routeId] = {};
+        }
+  
+        if (!this.groupedTripData[routeId][direction]) {
+          this.groupedTripData[routeId][direction] = { data: [] };
+        }
+  
+        this.groupedTripData[routeId][direction].data.push(newTrip);
+      });
+    }
+  
+    for (const routeId in this.groupedTripData) {
+      for (const direction in this.groupedTripData[routeId]) {
+        this.groupedTripData[routeId][direction].data.sort((a: any, b: any) => a.arrivalTime - b.arrivalTime);
+      }
+    }
+  }  
+
+  getDirections(routeId: string): string[] {
+    return Object.keys(this.groupedTripData[routeId]);
+  }
+  
+  getRouteIds(stopId: string): string[] {
+    return Object.keys(this.tripData[stopId].reduce((acc: any, trip: any) => {
+      console.log(trip)
+      acc[trip.routeId] = true;
+      return acc;
+    }, {}));
+  }  
 
   handleButtonClick(stopCode: string): void {
-    console.log(`Button clicked for stop: ${stopCode}`);
+    // console.log(`Button clicked for stop: ${stopCode}`);
     this.showOption('busNearYou');
     const nearbyStops = this.stopsService.getNearbyStops(stopCode, 250);
     // console.log('Nearby stops:', nearbyStops);

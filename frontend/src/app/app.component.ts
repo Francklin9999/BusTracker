@@ -8,11 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { LiveBusComponent } from './live-bus/live-bus.component';
 import { CustomSidenavComponent } from "./custom-sidenav/custom-sidenav.component";
-import { provideHttpClient, withFetch } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../environments/environment';
 import { WebSocketService } from './services/websocket.service';
 import { ThemeService } from './services/theme.service';
 import { Subscription } from 'rxjs';
+import { LocationService } from './services/location.service';
 
 @Component({
   selector: 'app-root',
@@ -28,13 +29,17 @@ export class AppComponent {
   collapsed = signal(true);
 
   //REPLACE IT WITH YOUR API KEY
-  yourGoogleAPIKEY = 'AIzaSyAvA_6QVheDXXUhvT6nG5LBLBaIfCeZYWQ';
+  GoogleAPIKEY = environment.GoogleAPIKEY;
 
   sidenavWidth = computed(() => this.collapsed() ? '65px' : '250px');
 
   private isLightModeSubscription: Subscription | undefined;
 
   isWebSocketError: boolean = false;
+
+  clientCoords: GeolocationCoordinates | null = null;
+
+  userTheme: 'dark' | 'light' | null = null;
 
   constructor(
     private router: Router, 
@@ -43,9 +48,11 @@ export class AppComponent {
     private renderer: Renderer2, 
     @Inject(DOCUMENT) private document: Document,
     @Inject(PLATFORM_ID) private platformId: Object,
+    private locationService: LocationService,
   ) {}
 
   ngOnInit() :void {
+    this.userTheme = this.themeService.getUserThemePreference();
     if (isPlatformBrowser(this.platformId)) {
       this.loadGoogleMaps();
     }
@@ -67,16 +74,29 @@ export class AppComponent {
     this.webSocket.error$.subscribe(errorMessage => {
       this.isWebSocketError = true;
     });
+    this.locationService.getUserLocation().then((coords) => {
+      if (coords) {
+        this.clientCoords = coords;
+      }
+    }).catch((error) => {
+      console.log('Error retrieving user location');
+    });
   }
   loadGoogleMaps(): void {
     if (!document.getElementById('google-maps-script')) {
       const script = this.renderer.createElement('script');
       script.id = 'google-maps-script';
-      //THIS IS KEY DOES NOT WORK LOL I'M NOT DUMB FEEL FREE TO TRY IT
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${this.yourGoogleAPIKEY}&loading=async&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${this.GoogleAPIKEY}&loading=async&libraries=places`;
       script.async = true;
       script.defer = true;
       this.renderer.appendChild(document.body, script);
+    }
+  }
+  ngAfterViewInit() {
+    if(this.userTheme !== 'dark') {
+      this.renderer.addClass(this.document.body, 'light-mode');
+      const elements = this.document.querySelectorAll('.background-image');
+      elements.forEach(el => this.renderer.addClass(el, 'no-invert'));
     }
   }
   

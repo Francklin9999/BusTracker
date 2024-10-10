@@ -1,6 +1,6 @@
 module github.com/Francklin9999/BusTracker
 
-go 1.22
+go 1.23
 
 require (
 	github.com/gin-contrib/cors v1.7.2

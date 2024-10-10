@@ -1,10 +1,11 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { LiveBusLocationService } from '../services/live-bus-location.service';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BusService } from '../services/bus.service';
 import { StopsService } from '../services/stops.service';
+import { LocationService } from '../services/location.service';
 @Component({
   selector: 'app-live-bus',
   standalone: true,
@@ -14,6 +15,7 @@ import { StopsService } from '../services/stops.service';
 })
 export class LiveBusComponent {
 
+  @Input() clientCoords: GeolocationCoordinates | null = null;
   private liveBusSubscription: Subscription | undefined;
   isLocation: boolean = false;
   busLocation: any = [];
@@ -101,7 +103,7 @@ export class LiveBusComponent {
     "STOPPED_AT" : "Stopped",
   }
 
-  constructor(private liveBus: LiveBusLocationService, private busService: BusService, private stopsService: StopsService)  {}
+  constructor(private liveBus: LiveBusLocationService, private busService: BusService, private stopsService: StopsService, private locationService: LocationService)  {}
 
 
     ngOnInit(): void {
@@ -123,7 +125,13 @@ export class LiveBusComponent {
       setInterval(() => {
         this.removeStaleMarkers();
       }, 60000); 
+      if (this.map && this.clientCoords) {
+        this.map!.setCenter({ lat: this.clientCoords.latitude, lng: this.clientCoords.longitude });
+        this.locationService.addMarker(this.map!, this.clientCoords);
+        this.locationService.watchUserLocation(this.map!);
+      }
     }
+
     ngOnDestroy(): void {
       if (this.liveBusSubscription) {
         this.liveBus.sendMessage('vehiclePositionsClosed', {})

@@ -43,11 +43,19 @@
             <button (click)="toggleDropdown(stopId)">
               {{ selectedKey === stopId ? 'Hide' : 'Details' }}
             </button>
-            <div *ngIf="selectedKey === stopId" class="bus-data">
-              <div *ngFor="let trip of tripData[stopId]" class="bus-data">
-                <h4>Line: {{ trip.routeId }}</h4>
-                <p>Next passage: {{ trip.arrival.time }} minutes</p>
-                <p>Direction: {{ trip.direction }}</p>
+            <div *ngIf="selectedKey === stopId" class="bus-datas">
+              <div *ngFor="let routeId of getRouteIds(stopId)" class="container bus-data gap-3">
+                <h4>Line: {{ routeId }}</h4>
+                <div *ngFor="let direction of getDirections(routeId)">
+                  <h5>Direction: {{ direction }}</h5>
+                  <div *ngFor="let buses of groupedTripData[routeId][direction].data">
+                    <div class="bus-data-container">
+                      <!-- <p>{{ buses.id }}</p> -->
+                      <p>Arrive in: {{ buses.arrivalTime }} minutes &nbsp;</p>
+                      <p>Status: {{ buses.relationship }}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

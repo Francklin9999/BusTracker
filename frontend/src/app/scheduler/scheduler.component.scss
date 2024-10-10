@@ -84,11 +84,27 @@
 }
 
 .bus-section {
-  padding: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bus-datas {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .bus-data {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  // padding: 10px;
+  color: inherit;
+  font-size: 24px;
 }
 
 .right-section-text {
@@ -106,7 +122,7 @@
 
 .buses {
   width: 100%;
-  margin: 7px;
+  // margin: 7px;
   display: flex;
   flex-direction: column;
 }
@@ -116,6 +132,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.bus-data-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  font-size: 1rem;
+  justify-content: space-between;
 }
 
 .map-container {
