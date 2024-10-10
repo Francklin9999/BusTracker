@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  
+    env_file:
+      - .env
+
+  frontend:
+    build:
+      context: ./frontend  
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"  
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./frontend:/app  
+    depends_on:
+      - app  
+
