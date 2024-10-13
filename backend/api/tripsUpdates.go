@@ -13,12 +13,20 @@ import (
 func GetTripUpdates() (string, error) {
 	tripUpdates, err := service.GetTripUpdates()
 	if err != nil {
-		return "", nil
+		return "", err
+	}
+
+	if len(tripUpdates) == 0 {
+		return "", fmt.Errorf("Error getting Trip Updates.")
 	}
 
 	modifiedData, err := service.ModifyDataGetTripUpdates(tripUpdates)
 	if err != nil {
-		return "", nil
+		return "", err
+	}
+
+	if len(modifiedData) == 0 {
+		return "", fmt.Errorf("Error modifying Trip Updates.")
 	}
 
 	return modifiedData, nil
@@ -44,10 +52,15 @@ func handleTripUpdates() {
 		log.Println("Error while getting trip updates: ", err)
 		return
 	}
-	stopIds = transormfTripUpdates([]byte(data1))
+	stopIds = transformTripUpdates([]byte(data1))
 }
 
-func transormfTripUpdates(jsonData []byte) map[string][]StopData {
+func transformTripUpdates(jsonData []byte) map[string][]StopData {
+
+	if len(jsonData) == 0 {
+		log.Println("Error, TripUpdates is empty.")
+		return nil
+	}
 
 	err := loadTripDirection()
 	if err != nil {
@@ -57,7 +70,8 @@ func transormfTripUpdates(jsonData []byte) map[string][]StopData {
 
 	var root Root
 	if err := json.Unmarshal([]byte(jsonData), &root); err != nil {
-		log.Println("Error unmarshalling JSON: %v", err)
+		log.Printf("Error unmarshalling JSON: %v", err)
+		return nil
 	}
 
 	stopMap := make(map[string][]StopData)

@@ -68,11 +68,11 @@ export class StatusComponent {
     this.statusService.getData().subscribe(
       data => {
         this.dataMap = data;
-        console.log(this.dataMap)
+        // console.log(this.dataMap)
         this.filteredItems = this.dataMap;
       },
       error => {
-        console.error('Error fetching data', error);
+        // console.error('Error fetching data', error);
       }
     ).add(() => {
       this.noData = Object.keys(this.dataMap).length === 0;

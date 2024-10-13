@@ -7,17 +7,23 @@ services:
       - "8080:8080"  
     env_file:
       - .env
+    networks:
+      - app-network
 
   frontend:
     build:
       context: ./frontend  
       dockerfile: Dockerfile
     ports:
-      - "4200:4200"  
+      - "80:80"  
     environment:
-      - NODE_ENV=development
-    volumes:
-      - ./frontend:/app  
+      - NODE_ENV=production
     depends_on:
       - app  
+    networks:
+      - app-network
+
+networks:
+  app-network:  
+    driver: bridge
 

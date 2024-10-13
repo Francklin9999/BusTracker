@@ -26,7 +26,6 @@ div {
 
 .title-text {
     color: inherit;
-    font-size: 60px;
     width: 100%;
     padding: 15px;
     background-image: linear-gradient(to top, 
@@ -46,12 +45,28 @@ div {
 
 .inputLigne {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     color: $white-background;
+    justify-content: center;
+    align-items: center;
+}
+
+@media screen and (min-width: 768px) {
+    .inputLigne {
+        flex-direction: row;
+        justify-content: start;
+        align-items: center;
+    }
 }
 
 .inputLigne > label {
     font-size: 24px;
+}
+
+.input-search {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }
 
 .bus-data {

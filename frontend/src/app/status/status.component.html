@@ -1,52 +1,55 @@
 <div class="container-fluid content">
     <div class="row title no-invert">
         <div>
-            <h2 class="title-text">Service Status</h2>
+            <h2 class="title-text ft-5">Service Status</h2>
         </div>
     </div>
     <div class="row content">
         <div class="inputLigne gap-3">
-            <label for="lineInput">Select a line to see his status:</label>
-            <input type="text"
-            placeholder="Select a line"
-            aria-label="Number"
-            #inputBus
-            class="no-invert"
-            matInput
-            [formControl]="myControl"
-            [matAutocomplete]="auto"/>
-            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-            @for (option of filteredOptions | async; track option) {
-                <mat-option [value]="option">{{option}}</mat-option>
-            }
-            </mat-autocomplete>
-            <button (click)="filterMap()" class="no-invert">Search</button>
+            <label for="lineInput">Select a line to check its status: </label>
+            <div class="input-search">
+                <input type="text"
+                    placeholder="Select a line"
+                    aria-label="Number"
+                    #inputBus
+                    class="no-invert"
+                    matInput
+                    [formControl]="myControl"
+                    [matAutocomplete]="auto"
+                />
+                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+                @for (option of filteredOptions | async; track option) {
+                    <mat-option [value]="option">{{option}}</mat-option>
+                }
+                </mat-autocomplete>
+                <button (click)="filterMap()" class="no-invert">Search</button>
+            </div>
         </div>
         <div *ngIf="filteredItems" class="container bus-data gap-3">
             <div *ngFor="let key of getKeys(filteredItems)" class="row bus-status gap-2">
-            <h3>Line: {{ key }}</h3>
-            <p>Status: {{ filteredItems[key].description }}</p>
-            <p>
-            More info 
-            <a [href]="(+key <= 5 ? 'https://www.stm.info/en/info/service-updates/metro' : 'https://www.stm.info/en/info/service-updates/bus?bus_line=' + key + '#status-bus-result-title')"
-            target="_blank"
-            rel="noopener noreferrer"
-            >
-                here
-              </a>
-              .
-            </p>
-            <div *ngFor="let period of filteredItems[key].active_periods" class="dates">
-                <p>Start Date: {{ formatDate(period.start) }}</p>
-                <p>End Date: {{ formatDate(period.end) }}</p>
-            </div>
+                <h3 class="ft-1-5">Line: {{ key }}</h3>
+                <p class="ft-1-5">Status: {{ filteredItems[key].description }}</p>
+                <p class="ft-1">
+                More info 
+                <a class="ft-1" [href]="(+key <= 5 ? 'https://www.stm.info/en/info/service-updates/metro' : 'https://www.stm.info/en/info/service-updates/bus?bus_line=' + key + '#status-bus-result-title')"
+                target="_blank"
+                rel="noopener noreferrer"
+                >
+                    here
+                </a>
+                .
+                </p>
+                <div *ngFor="let period of filteredItems[key].active_periods" class="dates">
+                    <p class="ft-1">Start Date: {{ formatDate(period.start) }}</p>
+                    <p class="ft-1">End Date: {{ formatDate(period.end) }}</p>
+                </div>
             </div>
         </div> 
         <div *ngIf="noData">
             <div class="no-data-message">
                 No data is currently available. <br />
-                For info about metro status you can visit <a href="https://www.stm.info/en/info/networks/bus" target="_blank" rel="noopener noreferrer">STM BUS STATUS</a> .<br />
-                For info about bus status you can visit <a href="https://www.stm.info/en/info/service-updates/metro" target="_blank" rel="noopener noreferrer">STM METRO STATUS</a>.
+                For info about metro status you can visit <a href="https://www.stm.info/en/info/service-updates/metro" target="_blank" rel="noopener noreferrer">STM METRO STATUS</a> .<br />
+                For info about bus status you can visit <a href="https://www.stm.info/en/info/networks/bus" target="_blank" rel="noopener noreferrer">STM BUS STATUS</a>.
             </div>
         </div>
     </div>

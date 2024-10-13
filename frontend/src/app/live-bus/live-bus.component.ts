@@ -119,7 +119,8 @@ export class LiveBusComponent {
       this.tripUpdatesSubscription = this.busService.getMessages().subscribe(message => {
         // console.log('Received WebSocket message:', message);
         this.tripData = message['Trip Updates'] || {};
-        this.noTripData = (this.tripData.length === 0) ? true : false;
+        this.noTripData = Object.keys(this.tripData).length === 0;
+        // console.log(this.noTripData);
         // console.log(this.tripData);
       });
       setInterval(() => {
@@ -150,7 +151,7 @@ export class LiveBusComponent {
         this.busStops = Object.values(data);
       },
       (error: any) => {
-        console.error('Error fetching or parsing csv bus stops data', error);
+        // console.error('Error fetching or parsing csv bus stops data', error);
         });
       this.liveBus.sendMessage('vehiclePositions', {});
     }
@@ -353,7 +354,7 @@ export class LiveBusComponent {
     };
 
     private calculateTimeDifference(timestamp: number): string {
-      console.log('here')
+      // console.log('here')
       const now = Math.floor(Date.now() / 1000);
     
       const difference = now - timestamp;

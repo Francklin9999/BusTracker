@@ -8,15 +8,13 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN ng build 
+RUN ng build
 
-# FROM nginx:alpine
+FROM nginx:alpine
 
-# COPY --from=frontend-builder /app/dist /usr/share/nginx/html
+COPY --from=frontend-builder /app/dist/frontend/browser /usr/share/nginx/html
 
-# EXPOSE 80
+EXPOSE 80
 
-EXPOSE 4200
-
-CMD ["ng", "serve"]
+CMD ["nginx", "-g", "daemon off;"]
 

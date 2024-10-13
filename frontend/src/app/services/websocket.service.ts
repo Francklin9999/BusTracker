@@ -1,12 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketService {
-  private wsUrl = 'ws://localhost:8080/ws';
+  private wsUrl = environment.wsApiUrl + '/ws';
   private socket: WebSocket | undefined;
   private messageSubject = new Subject<string>();
   private errorSubject = new Subject<string>();
@@ -34,7 +35,7 @@ export class WebSocketService {
       this.socket = new WebSocket(this.wsUrl);
 
       this.socket.onopen = () => {
-        console.log('WebSocket connection opened');
+        // console.log('WebSocket connection opened');
       };
 
       this.socket.onmessage = (event) => {
@@ -43,15 +44,15 @@ export class WebSocketService {
       };
 
       this.socket.onerror = (error) => {
-        this.errorSubject.next('WebSocket error: ' + error);
+        // this.errorSubject.next('WebSocket error: ' + error);
       };
 
       this.socket.onclose = (event) => {
-        console.log('WebSocket connection closed', event);
+        // console.log('WebSocket connection closed', event);
       };
     } catch (error) {
-      console.error('Error connecting to WebSocket:', error);
-      this.errorSubject.next('Error connecting to WebSocket: ' + error);
+      // console.error('Error connecting to WebSocket.');
+      // this.errorSubject.next('Error connecting to WebSocket: ' + error);
     }
   }
 
@@ -60,7 +61,7 @@ export class WebSocketService {
     if (this.socket?.readyState === WebSocket.OPEN) {
       this.socket.send(message);
     } else {
-      console.error('WebSocket is not open. Message not sent.');
+      // console.error('WebSocket is not open. Message not sent.');
     }
   }
 

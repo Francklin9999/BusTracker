@@ -25,6 +25,9 @@ export class SchedulerComponent {
   @ViewChild('departureDate', { static: false }) departureDateInput!: ElementRef;
   @ViewChild('departureTime', { static: false }) departureTimeInput!: ElementRef;
 
+  currentDate: string = '';
+  currentTime: string = '';
+
   map: google.maps.Map | any;
   departureAutocomplete!: google.maps.places.Autocomplete;
   arrivalAutocomplete!: google.maps.places.Autocomplete;
@@ -96,11 +99,18 @@ export class SchedulerComponent {
   private buttonClickSubscription: Subscription | null = null;
   private tripUpdatesSubscription: Subscription | undefined;
   tripData: any = {};
-  noTripData: boolean = true;
+  noTripData: boolean | undefined;
+  
+  isDirectionNull : boolean | undefined;
 
   selectedKey: string | null = null;
 
   isWebsocket: boolean | undefined;
+  
+
+  montrealCenter: google.maps.LatLng = new google.maps.LatLng(45.5017, -73.5673);
+  radiusKm: number = 100;
+  directionServiceNotWithinRadius: boolean = false;
 
   constructor(private busService: BusService, private cdr: ChangeDetectorRef, private stopsService: StopsService, private locationService: LocationService) {}
 
@@ -111,7 +121,7 @@ export class SchedulerComponent {
     this.tripUpdatesSubscription = this.busService.getMessages().subscribe(message => {
       // console.log('Received WebSocket message:', message);
       this.tripData = message['Trip Updates'] || {};
-      this.noTripData = (this.tripData.length === 0);
+      this.noTripData = Object.keys(this.tripData).length === 0;
       this.updateGroupedTripData();
     });
     if (this.map && this.clientCoords) {
@@ -119,6 +129,9 @@ export class SchedulerComponent {
       this.locationService.addMarker(this.map!, this.clientCoords);
       this.locationService.watchUserLocation(this.map!);
     }
+    const now = new Date();
+    this.currentDate = now.toISOString().split('T')[0];
+    this.currentTime = now.toTimeString().slice(0, 5); 
   }
 
   ngOnDestroy(): void {
@@ -139,7 +152,7 @@ export class SchedulerComponent {
       this.stopsService.addMarkers(this.map, data);
     },
     (error: any) => {
-      console.error('Error fetching or parsing csv bus stops data', error);
+      // console.error('Error fetching or parsing csv bus stops data', error);
       });
   }
 
@@ -166,24 +179,47 @@ export class SchedulerComponent {
       }
     }
 
-  showOption(value: string) {
+  showOption(value: string): void {
     this.selectedOption = value;
     if(value === "whereToGo")
     setTimeout(()=>
       this.initAutocomplete(), 100)
   }
 
-  handleClick() {
+  isWithinRadius(point: google.maps.LatLng, center: google.maps.LatLng, radius: number): boolean {
+    const toRadians = (degrees: number) => degrees * (Math.PI / 180);
+    const earthRadiusKm = 6371;
+  
+    const dLat = toRadians(point.lat() - center.lat());
+    const dLng = toRadians(point.lng() - center.lng());
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRadians(center.lat())) * Math.cos(toRadians(point.lat())) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    
+    const distance = earthRadiusKm * c;
+    return distance <= radius; 
+  }
+  
+
+  handleClick(): void {
     const departurePlace = this.departureAutocomplete.getPlace();
     const arrivalPlace = this.arrivalAutocomplete.getPlace();
 
     const departureDateTimeString = `${this.departureDateInput.nativeElement.value}T${this.departureTimeInput.nativeElement.value}`;
   
     if (!departurePlace || !arrivalPlace || !departurePlace.geometry?.location || !arrivalPlace.geometry?.location) {
-      console.log('One or both of the places are not selected or locations are undefined');
+      // console.log('One or both of the places are not selected or locations are undefined');
       return;
     }
-  
+
+    // if (this.isWithinRadius(departurePlace.geometry.location, this.montrealCenter, this.radiusKm) &&
+    // this.isWithinRadius(arrivalPlace.geometry.location, this.montrealCenter, this.radiusKm)) { 
+    //   this.directionServiceNotWithinRadius = true;
+    //   return;
+    // }
+
+    // this.directionServiceNotWithinRadius = false;
     this.directionsService = new google.maps.DirectionsService();
     this.directionsService.route({
       origin: departurePlace.geometry.location,
@@ -191,19 +227,24 @@ export class SchedulerComponent {
       travelMode: google.maps.TravelMode.TRANSIT,
       transitOptions: {
         departureTime: new Date(departureDateTimeString)
-      }
+      },
+      language: 'en',
+      region: 'ca'
     }, 
     (response: any, status: any) => {
       if (status === "OK") {
+        this.isDirectionNull = false;
         this.directionsRenderer.setDirections(response);
         this.extractTransitDetails(response);
+      } else if (status === "ZERO_RESULTS") {
+        this.isDirectionNull = true;
       } else {
-        console.error(`Directions request failed due to ${status}`);
+        // console.error(`Directions request failed due to ${status}`);
       }
     });
   }
 
-  extractTransitDetails(response: google.maps.DirectionsResult) {
+  extractTransitDetails(response: google.maps.DirectionsResult): void {
     if (response.routes.length > 0) {
       const route = response.routes[0];
       const legs = route.legs;
@@ -221,12 +262,12 @@ export class SchedulerComponent {
       );
     }
   }
-  updateGroupedTripData() {
+  updateGroupedTripData() : void {
     this.groupedTripData = {};
   
     for (const stopId in this.tripData) {
       this.tripData[stopId].forEach((trip: any) => {
-        console.log(trip)
+        // console.log(trip)
         const id = trip.id;
         const arrivalTime = parseInt(trip.arrival.time, 10);
         const relationship = trip.scheduleRelationship;
@@ -260,7 +301,7 @@ export class SchedulerComponent {
   
   getRouteIds(stopId: string): string[] {
     return Object.keys(this.tripData[stopId].reduce((acc: any, trip: any) => {
-      console.log(trip)
+      // console.log(trip)
       acc[trip.routeId] = true;
       return acc;
     }, {}));

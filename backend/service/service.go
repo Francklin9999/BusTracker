@@ -16,10 +16,10 @@ import (
 )
 
 var (
-	apiKey string
+	apiKey      string
 	apiKeyMutex sync.Mutex
-	defaultUrl string = "https://api.stm.info/pub/od/gtfs-rt/ic/v2"
-	recentUrl string = "https://api.stm.info/pub/od/i3/v2/messages"
+	defaultUrl  string = "https://api.stm.info/pub/od/gtfs-rt/ic/v2"
+	recentUrl   string = "https://api.stm.info/pub/od/i3/v2/messages"
 )
 
 func SetApiKey(key string) {
@@ -52,7 +52,7 @@ func GetRequest(headers map[string]string, url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error reading response body: %v", err)
 	}
-	
+
 	return body, nil
 }
 
@@ -73,7 +73,7 @@ func TransformProtoToJSON(data []byte) ([]byte, error) {
 }
 
 func TransformTime(data map[string]interface{}) {
-	now := time.Now().Unix() 
+	now := time.Now().Unix()
 
 	var transform func(interface{}) interface{}
 	transform = func(v interface{}) interface{} {
@@ -85,7 +85,7 @@ func TransformTime(data map[string]interface{}) {
 					if str, ok := value.(string); ok {
 						var timeVal int64
 						fmt.Sscanf(str, "%d", &timeVal)
-						result[k] = math.Floor(float64(timeVal - now) / 60)
+						result[k] = math.Floor(float64(timeVal-now) / 60)
 					}
 				} else {
 					result[k] = transform(value)
@@ -111,21 +111,25 @@ func TransformTime(data map[string]interface{}) {
 func GetTripUpdates() ([]byte, error) {
 	var endpoint string = "/tripUpdates"
 	headers := map[string]string{
-		"accept" : "application/x-protobuf",
-		"apiKey" : apiKey,
+		"accept": "application/x-protobuf",
+		"apiKey": apiKey,
 	}
 
 	var url string = defaultUrl + endpoint
 
 	data, err := GetRequest(headers, url)
 	if err != nil {
-		return nil, fmt.Errorf("error modifying data: %v", err)
+		return nil, fmt.Errorf("Error getting data: %v", err)
+	}
+
+	if len(data) == 0 {
+		return nil, fmt.Errorf("Error data is nil.")
 	}
 
 	return data, nil
 }
 
-func ModifyDataGetTripUpdates(data []byte) (string, error)  {
+func ModifyDataGetTripUpdates(data []byte) (string, error) {
 	message, err := TransformProtoToJSON(data)
 	if err != nil {
 		return "", fmt.Errorf("error modifying data: %v", err)
@@ -149,8 +153,8 @@ func ModifyDataGetTripUpdates(data []byte) (string, error)  {
 func GetVehiclePositions() ([]byte, error) {
 	var endpoint string = "/vehiclePositions"
 	headers := map[string]string{
-		"accept" : "application/x-protobuf",
-		"apiKey" : apiKey,
+		"accept": "application/x-protobuf",
+		"apiKey": apiKey,
 	}
 
 	var url string = defaultUrl + endpoint
@@ -158,7 +162,7 @@ func GetVehiclePositions() ([]byte, error) {
 	data, err := GetRequest(headers, url)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %v", err)
-		}
+	}
 
 	return data, nil
 }
@@ -175,8 +179,8 @@ func ModifyDataGetVehiclePositions(data []byte) (string, error) {
 func GetEtatService() ([]byte, error) {
 	var endpoint string = "/etatservice"
 	headers := map[string]string{
-		"accept" : "application/json",
-		"apiKey" : apiKey,
+		"accept": "application/json",
+		"apiKey": apiKey,
 	}
 
 	var url string = recentUrl + endpoint
@@ -184,7 +188,7 @@ func GetEtatService() ([]byte, error) {
 	data, err := GetRequest(headers, url)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %v", err)
-		}
+	}
 
 	return data, nil
 }
@@ -200,7 +204,7 @@ func ModifyDataEtatService(data1 []byte) (string, error) {
 	alerts, ok := data["alerts"].([]interface{})
 
 	if !ok {
-	return "", fmt.Errorf("error: 'alerts' is not an array")
+		return "", fmt.Errorf("error: 'alerts' is not an array")
 	}
 
 	for _, alert := range alerts {
@@ -252,54 +256,54 @@ func ModifyDataEtatService(data1 []byte) (string, error) {
 			}
 			activePeriods = append(activePeriods, activePeriod)
 		}
-	
-			if entities, ok := alertMap["informed_entities"].([]interface{}); ok {
-				for _, entity := range entities {
-					entityMap, ok := entity.(map[string]interface{})
-					if !ok {
-						continue
-					}
-	
-					routeShortName, ok := entityMap["route_short_name"].(string)
-					if !ok {
-						continue
-					}
 
-					description := ""
-					if descriptions, ok := alertMap["description_texts"].([]interface{}); ok {
-						for _, desc := range descriptions {
-							descMap, ok := desc.(map[string]interface{})
-							if !ok {
-								continue
-							}
-	
-							if descMap["language"] == "en" {
-								description = descMap["text"].(string)
-								break
-							}
+		if entities, ok := alertMap["informed_entities"].([]interface{}); ok {
+			for _, entity := range entities {
+				entityMap, ok := entity.(map[string]interface{})
+				if !ok {
+					continue
+				}
+
+				routeShortName, ok := entityMap["route_short_name"].(string)
+				if !ok {
+					continue
+				}
+
+				description := ""
+				if descriptions, ok := alertMap["description_texts"].([]interface{}); ok {
+					for _, desc := range descriptions {
+						descMap, ok := desc.(map[string]interface{})
+						if !ok {
+							continue
+						}
+
+						if lang, ok := descMap["language"].(string); ok && lang == "en" {
+							description = descMap["text"].(string)
+							break
 						}
 					}
-	
-					result[routeShortName] = map[string]interface{}{
-						"active_periods": activePeriods,
-						"description":    description,
-					}
+				}
+
+				result[routeShortName] = map[string]interface{}{
+					"active_periods": activePeriods,
+					"description":    description,
 				}
 			}
 		}
-	
-		output, err := json.MarshalIndent(result, "", "  ")
-		if err != nil {
-			return "", err
-		}
-		return string(output), nil
+	}
+
+	output, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
 }
 
 func unixToDateString(unixTime float64) string {
 	t := time.Unix(int64(unixTime), 0).UTC()
-	return t.Format(time.RFC3339) 
+	return t.Format(time.RFC3339)
 }
 
 // func MixTripUpdatesAndVehiclePositions(data1 string, data2 string) (string, err) {
-	
+
 // }

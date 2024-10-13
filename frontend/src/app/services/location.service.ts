@@ -55,7 +55,7 @@ export class LocationService {
           this.addMarker(map, coords);
         },
         (error) => {
-          console.error('Error watching location:', error);
+          // console.error('Error watching location:', error);
         }
       );
     }

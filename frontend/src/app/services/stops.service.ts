@@ -34,11 +34,11 @@ export class StopsService {
               observer.complete();
             },
             error: (error: any) => {
-              observer.error(error);
+              // observer.error(error);
             }
           });
         },
-        error => observer.error(error)
+        // error => observer.error(error)
       );
     });
   }

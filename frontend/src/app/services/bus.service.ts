@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { WebSocketService } from './websocket.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BusService {
-  private apiUrl = 'http://localhost:8080/bus-near';
+  private apiUrl = environment.apiUrl + '/bus-near';
   private messageSubject: Subject<any> = new Subject<any>();
 
   constructor(private http: HttpClient, private webSocket: WebSocketService) {

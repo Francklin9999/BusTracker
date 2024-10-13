@@ -57,7 +57,7 @@ export class AppComponent {
       this.loadGoogleMaps();
     }
     if (performance.navigation?.type === performance.navigation?.TYPE_RELOAD) {
-      console.log('Page was reloaded');
+      // console.log('Page was reloaded');
       this.router.navigate(['/']);
     }
     this.isLightModeSubscription = this.themeService.isLightMode$.subscribe(isLightMode => {

@@ -1,20 +1,23 @@
 <div class="settings-overlay" *ngIf="isSettingsVisible">
     <div class="container">
-        <div class="row">
-            <h3>Switch Mode</h3>
-            <button (click)="toggleMode(true)">Day</button>
-            <button (click)="toggleMode(false)">Night</button>
+        <div class="row container-text">
+            <h3 class="ft-2">Switch Mode</h3>
+            <label for="switch" class="switch no-invert">
+                <input id="switch" type="checkbox" (change)="onToggleChange($event)" />
+                <span class="slider"></span>
+                <span class="decoration"></span>
+            </label>                      
         </div>
-        <div class="row">
-            <h3>Found any issue or bug?</h3>
-            <p>If you're a developer, feel free to open an issue on my GitHub 
-                <a href="https://github.com/Francklin9999/BusTracker" target="_blank" rel="noopener noreferrer">here</a>.
+        <div class="row container-text">
+            <h3 class="ft-2">Found any issue or bug?</h3>
+            <p class="ft-1">If you're a developer, feel free to open an issue on my GitHub 
+                <a class="ft-1" href="https://github.com/Francklin9999/BusTracker" target="_blank" rel="noopener noreferrer">here</a>.
             </p>
-            <p>
+            <p class="ft-1">
                 If you're a user, you can contact me via email at franckfongang99&#64;gmail.com.
             </p>
         </div>
-        <button class="close-btn" (click)="closeSettings()">Close</button>
+        <button class="ft-1 close-btn" (click)="closeSettings()">Close</button>
     </div>
 </div>
 

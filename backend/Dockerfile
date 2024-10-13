@@ -1,4 +1,4 @@
-FROM golang:1.23 AS builder
+FROM golang:latest AS builder
 
 WORKDIR /app
 
@@ -8,11 +8,15 @@ RUN go build -o server ./cmd/server/main.go
 
 FROM ubuntu:22.04
 
+RUN apt-get update && apt-get install -y ca-certificates
+
 WORKDIR /app
 
 COPY --from=builder /app/server .
 
-COPY .env .
+COPY ./cmd/server/.env .
+
+COPY ./cmd/server/stmBusHeadSign.csv .
 
 EXPOSE 8080
 

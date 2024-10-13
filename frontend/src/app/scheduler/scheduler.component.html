@@ -1,7 +1,7 @@
 <div class="content">
 
     <div class="left-section">
-      <h3 class="title">Plan a trip.<br />Decide where you want to go.</h3>
+      <h3 class="title ft-1-5">Plan a trip.<br />Decide where you want to go.</h3>
       <div class="map-container">
         <div class="map" #map></div>
       </div>
@@ -13,16 +13,25 @@
         <button class="buttons" [ngClass]="{'active': selectedOption === 'busNearYou'}" (click)="showOption('busNearYou')">Bus near you</button>
       </div>
       <div class="directions no-invert" *ngIf="selectedOption === 'whereToGo'">
-        <h4 class="right-section-text">Where do you want to go?</h4>
+        <h4 class="right-section-text ft-1-5">Where do you want to go?</h4>
         <input class="directions-inputs" #departureLocation type="text" placeholder="Enter departure location" />
         <input class="directions-inputs" #arrivalLocation type="text" placeholder="Enter arrival location" />
-        <input class="directions-inputs" type="date" #departureDate placeholder="Select departure date" />
-        <input class="directions-inputs" type="time" #departureTime placeholder="Select departure time" />    
-        <button (click)="handleClick()">Search</button>
-        <div *ngIf="steps.length > 0">
-          <h4>Steps</h4>
-          <div *ngFor="let step of steps">
-            <p *ngIf="step.instructions">Instructions: {{ step.instructions }}</p>
+        <input class="directions-inputs" type="date" #departureDate [value]="currentDate" placeholder="Select departure date" />
+        <input class="directions-inputs" type="time" #departureTime [value]="currentTime" placeholder="Select departure time" />    
+        <button 
+          (click)="handleClick()"
+          [disabled]="!departureLocation.value || !arrivalLocation.value || !departureDate.value || !departureTime.value"
+          >
+            Search
+          </button>
+        <div *ngIf="directionServiceNotWithinRadius">
+          <p class="directions-text ft-1">The departure or the destination is not within the service area.</p>
+        </div>
+        <h5 class="direction-steps-title ft-1" *ngIf="isDirectionNull">No directions found.</h5>
+        <h4 class="direction-steps-title ft-1-5" *ngIf="steps.length > 0">Steps: </h4>
+        <div class="direction-steps" *ngIf="steps.length > 0">
+          <div class="direction-steps-text" *ngFor="let step of steps; let i = index">
+            <p *ngIf="step.instructions">Step {{ i + 1 }}: {{ step.instructions }}</p>
             <p *ngIf="step.transitLine">Transit Line: {{ step.transitLine }}</p>
             <p *ngIf="step.departureTime">Departure Time: {{ step.departureTime }}</p>
           </div>
@@ -35,6 +44,13 @@
   
       <div class="bus-section no-invert" *ngIf="selectedOption === 'busNearYou'">
         <h4 class="right-section-text">Bus near you</h4>
+        <div *ngIf="noTripData === undefined">
+          <h4 class="ft-1-5">Select a stop to see nearby buses.</h4>
+          <p class="ft-1">If you don't see any stops, zoom in.</p>
+        </div>
+        <div *ngIf="noTripData">
+          <p class="ft-1">No data Found</p>
+        </div>
         <div *ngIf="tripData" class="buses-content">
           <div class="buses" *ngFor="let stopId of getStopIds()">
             <h5 class="ft-1">
@@ -59,10 +75,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div *ngIf="noTripData">
-          <h4>Select a stop to see nearby buses.</h4>
-          <p>If you don't see any stops, zoom in.</p>
         </div>
   
       </div>

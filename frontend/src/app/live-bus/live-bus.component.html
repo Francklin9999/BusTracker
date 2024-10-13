@@ -2,8 +2,8 @@
 
     <div class="left-section">
       <div class="left-section-content">
-        <h3>Real Time Position of Montreal Transit. </h3>
-        <p>Click on the map to see bus near a location or click <a routerLink="/trip">here</a> to schedule a trip.</p>
+        <h3 class="ft-1-5">Real Time Position of Montreal Transit. </h3>
+        <p class="ft-1">Click on the map to see bus near a location or click <a routerLink="/trip">here</a> to schedule a trip.</p>
       </div> 
       <div class="map-container">
         <div class="map" #map></div>
@@ -14,14 +14,14 @@
     <div class="right-section">
       <h3>Bus near you</h3>
       <div class="location" *ngIf="!isLocation">
-        <p>Click on the map to get bus near a location.</p>
+        <p class="ft-1">Click on the map to get bus near a location.</p>
       </div>
       <div class="location" *ngIf="isLocation">
-        <p>lat: {{location.lat}}</p>
-        <p>lng: {{location.lng}}</p>
+        <p class="ft-0-5">lat: {{location.lat}}</p>
+        <p class="ft-0-5">lng: {{location.lng}}</p>
       </div>
-      <div *ngIf="noTripData">
-        <p>No bus near this location. <br /> Select another location to se nearby buses.</p>
+      <div class="location" *ngIf="noTripData">
+        <p class="ft-0-5">No bus near this location. <br /> Select another location to se nearby buses.</p>
       </div>
       <div *ngFor="let key of getKeys(tripData)" class="bus-content">
         <h5 class="ft-1">

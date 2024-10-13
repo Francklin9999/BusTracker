@@ -20,7 +20,17 @@ export class SettingsComponent {
     private location: Location 
   ) {}
 
+  onToggleChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target) {
+      this.toggleMode(target.checked);
+    }
+  }
+
   toggleMode(value: boolean): void {
+    if (value == null) {
+      return;
+    }
     this.themeService.toggleLightMode(value);
   }
 

@@ -13,13 +13,13 @@
     <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
       <!-- Wrapper-->
       <div *ngIf="isWebSocketError" class="webSocketError">
-        <div class="col">
+        <div class="col ft-1 webSocketErrorMessages">
           <p>An error on our end as occur</p>
         </div>
-        <div class="col">
-          <p>Refresh your browser to get live updates</p>
+        <div class="col ft-1 webSocketErrorMessages">
+          <p class="webSocketErrorMessages">Refresh your browser to get live updates</p>
         </div>
-        <div class="col">
+        <div class="col ft-1 webSocketErrorMessages">
           <p>If this issue persist, open an issue on our github
             <a href="https://github.com/Francklin9999/BusTracker" target="_blank" rel="noopener noreferrer">here</a>.
           </p>
