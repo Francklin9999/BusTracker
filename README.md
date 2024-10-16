@@ -6,6 +6,11 @@ This project is a real-time bus tracking application that provides live data for
 ## Screenshots
 
 ![App Screenshot](https://github.com/user-attachments/assets/8005ce61-0c6d-4034-96ae-c020127a4683)
+![App Screenshot](https://github.com/user-attachments/assets/e1c27ffc-f050-4166-ae0b-4bbae75f0bfc)
+![App Screenshot](https://github.com/user-attachments/assets/6f205c11-ff77-4171-8462-3fbb78f8c228)
+![App Screenshot](https://github.com/user-attachments/assets/0fc3c933-ceb3-4e8e-86a3-79d6a05d6a86)
+![App Screenshot](https://github.com/user-attachments/assets/afee50e2-18c4-4363-90ba-11f8338394f6)
+
 
 ## Features
 - Track Bus in real time
