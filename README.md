@@ -25,6 +25,9 @@ To run this project, you will need to add the following environment variables to
 
 `API_KEY` for your STM API KEY
 
+Next, navigate to frontend/src/app/environments/environment.ts and add the following
+
+`GoogleAPIKEY` for your Google API KEY
 
 ## Run Locally
 
