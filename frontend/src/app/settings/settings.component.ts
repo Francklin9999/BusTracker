@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ThemeService } from '../services/theme.service';
 @Component({
@@ -16,7 +15,6 @@ export class SettingsComponent {
 
   constructor( 
     private themeService: ThemeService,
-    private router: Router,
     private location: Location 
   ) {}
 

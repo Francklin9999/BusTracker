@@ -27,11 +27,24 @@ import { LocationService } from './services/location.service';
 export class AppComponent {
   title = 'BusTracker';
   collapsed = signal(true);
+  isBrowser: boolean;
 
   //REPLACE IT WITH YOUR API KEY
   GoogleAPIKEY = environment.GoogleAPIKEY;
 
-  sidenavWidth = computed(() => this.collapsed() ? '65px' : '250px');
+  sidenavWidth = computed(() => {
+    if (this.isBrowser) {
+      const isMobile = window.innerWidth < 768;
+
+      if (isMobile) {
+        return this.collapsed() ? '0' : '100%';
+      } else {
+        return this.collapsed() ? '65px' : '250px';
+      }
+    }
+    return '0';
+  });
+  
 
   private isLightModeSubscription: Subscription | undefined;
 
@@ -49,7 +62,9 @@ export class AppComponent {
     @Inject(DOCUMENT) private document: Document,
     @Inject(PLATFORM_ID) private platformId: Object,
     private locationService: LocationService,
-  ) {}
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit() :void {
     this.userTheme = this.themeService.getUserThemePreference();
@@ -81,6 +96,9 @@ export class AppComponent {
     }).catch((error) => {
       console.log('Error retrieving user location');
     });
+    if (this.isBrowser) {
+      window.addEventListener('resize', this.handleResize);
+    }
   }
   loadGoogleMaps(): void {
     if (!document.getElementById('google-maps-script')) {
@@ -105,5 +123,12 @@ export class AppComponent {
     if (this.isLightModeSubscription) {
       this.isLightModeSubscription.unsubscribe();
     }
+    if (this.isBrowser) {
+      window.removeEventListener('resize', this.handleResize);
+    }
   }
+
+  handleResize = () => {
+    this.collapsed.set(this.collapsed());
+  };
 }

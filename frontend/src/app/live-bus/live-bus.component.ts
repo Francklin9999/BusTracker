@@ -199,7 +199,7 @@ export class LiveBusComponent {
       });
     }
 
-    private updateMarkerSize(): void {
+    updateMarkerSize(): void {
       const zoom = this.map.getZoom() || 15;
       const scale = zoom > 13 ? 32 : 16;
   
@@ -213,7 +213,7 @@ export class LiveBusComponent {
       });
     }
 
-    private removeStaleMarkers(): void {
+    removeStaleMarkers(): void {
       const now = Math.floor(Date.now() / 1000);
       const markersToRemove: string[] = [];
     
@@ -236,7 +236,7 @@ export class LiveBusComponent {
     }
     
 
-    private updateBusLocations(): void {
+    updateBusLocations(): void {
       for (const key in this.busLocation) {
         const bus = this.busLocation[key];
         if (this.checkTimeDifference(bus.timeDifference) > 120) continue;
@@ -353,7 +353,7 @@ export class LiveBusComponent {
       anchor: new google.maps.Point(16, 32)
     };
 
-    private calculateTimeDifference(timestamp: number): string {
+    calculateTimeDifference(timestamp: number): string {
       // console.log('here')
       const now = Math.floor(Date.now() / 1000);
     

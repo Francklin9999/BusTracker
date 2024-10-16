@@ -96,8 +96,8 @@ export class SchedulerComponent {
     departureTime: string | undefined;
   }> = [];
   
-  private buttonClickSubscription: Subscription | null = null;
-  private tripUpdatesSubscription: Subscription | undefined;
+  buttonClickSubscription: Subscription | null = null;
+  tripUpdatesSubscription: Subscription | undefined;
   tripData: any = {};
   noTripData: boolean | undefined;
   

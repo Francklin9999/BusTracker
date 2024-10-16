@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import * as Papa from 'papaparse';
-import { log } from 'console';
 
 @Injectable({
   providedIn: 'root'

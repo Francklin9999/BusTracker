@@ -1,7 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { environment } from '../../environments/environment.prod';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +44,7 @@ export class WebSocketService {
       };
 
       this.socket.onerror = (error) => {
-        // this.errorSubject.next('WebSocket error: ' + error);
+        this.errorSubject.next('WebSocket error: ' + error);
       };
 
       this.socket.onclose = (event) => {
@@ -52,7 +52,7 @@ export class WebSocketService {
       };
     } catch (error) {
       // console.error('Error connecting to WebSocket.');
-      // this.errorSubject.next('Error connecting to WebSocket: ' + error);
+      this.errorSubject.next('Error connecting to WebSocket');
     }
   }
 

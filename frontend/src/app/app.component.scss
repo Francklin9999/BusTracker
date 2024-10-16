@@ -58,13 +58,28 @@ mat-sidenav-content {
     overflow: auto;
     padding: 0;
     margin: 0;
+    margin-top: 260px;
+}
+
+.menu-content {
+    margin-top: 40px;
 }
 
 .menu-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
     width: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+@media screen and (max-width: 768px) {
+    .menu-icon.menu-webSocketError {
+        top: 30px;
+    }
 }
 
 .webSocketError {

@@ -3,12 +3,16 @@
   <router-outlet></router-outlet>
 </div> -->
 <div class="wrapper">
+  <button mat-icon-button 
+    (click)="collapsed.set(!collapsed())" 
+    class="menu-icon"
+    [ngClass]="{'menu-webSocketError': isWebSocketError}"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
   <mat-sidenav-container>
-    <mat-sidenav opened mode="side" [style.width]="sidenavWidth()">
-      <button mat-icon-button (click)="collapsed.set(!collapsed())" class="menu-icon">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <app-custom-sidenav [collapsed]="collapsed()" />
+    <mat-sidenav opened mode="side" [style.width]="sidenavWidth()" class="menu-content">
+      <app-custom-sidenav [collapsed]="collapsed()"/>
     </mat-sidenav>
     <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
       <!-- Wrapper-->
